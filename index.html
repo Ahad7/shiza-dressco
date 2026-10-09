@@ -701,7 +701,7 @@ function renderGrid(){
   const list = PRODUCTS.filter(p => activeCat === "all" || p.cat === activeCat);
   byId("grid").innerHTML = list.map((p, i) => `
     <article class="card">
-      <div class="card-art">${artwork(p, i)}<img src="images/${p.id}.jpg" alt="${p.name}" loading="lazy" onerror="this.remove()"><span class="card-flag">${p.flag}</span></div>
+      <div class="card-art">${artwork(p, i)}<img src="images/${p.id}.jpg" alt="${p.name}" loading="lazy" onerror="this.dataset.i=(+this.dataset.i||0)+1;var e=['jpeg','png','webp','JPG','JPEG'][this.dataset.i-1];if(e){this.src='images/${p.id}.'+e}else{this.remove()}"><span class="card-flag">${p.flag}</span></div>
       <div>
         <div class="card-name">${p.name}</div>
         <p class="card-desc">${p.desc}</p>
@@ -822,7 +822,7 @@ function renderDrawer(){
       ${cart.map((it, i) => {
         const p = find(it.id);
         return `<div class="line-item">
-          <div class="li-art">${artwork(p, "c" + i)}<img src="images/${p.id}.jpg" alt="" onerror="this.remove()"></div>
+          <div class="li-art">${artwork(p, "c" + i)}<img src="images/${p.id}.jpg" alt="" onerror="this.dataset.i=(+this.dataset.i||0)+1;var e=['jpeg','png','webp','JPG','JPEG'][this.dataset.i-1];if(e){this.src='images/${p.id}.'+e}else{this.remove()}"></div>
           <div class="li-main">
             <div class="li-name">${p.name}</div>
             <div class="li-meta">${it.size === "One size" ? p.unstitchedNote : "Size " + it.size}</div>

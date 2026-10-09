@@ -18,7 +18,9 @@
 <title>Shiza Dressco</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap"></noscript>
 
 <style>
 /* ============================================================
@@ -158,8 +160,7 @@ a{color:inherit}
 /* ---------- hero: full-width landscape banner ---------- */
 .hero{
   position:relative;width:100%;overflow:hidden;
-  min-height:clamp(430px,52vw,620px);
-  display:grid;place-items:center;
+  aspect-ratio:16/9;min-height:300px;max-height:80vh;
   border-bottom:1px solid var(--line);
   background:radial-gradient(120% 90% at 20% 10%, var(--surface-2) 0%, transparent 60%),
              linear-gradient(160deg, var(--art-1) 0%, var(--art-2) 45%, var(--art-3) 100%);
@@ -174,22 +175,20 @@ a{color:inherit}
 }
 .hero.has-media .hero-scrim{opacity:1}
 
-.hero-inner{
-  position:relative;z-index:2;max-width:860px;width:100%;margin:0 auto;
-  padding:76px 20px;text-align:center;
+/* the written part sits below the banner, never on top of it */
+.hero-copy{
+  max-width:720px;margin:0 auto;padding:52px 20px 44px;text-align:center;
 }
-.hero h1{font-size:clamp(32px,5.2vw,60px);line-height:1.07;margin-block:16px 18px}
-.hero h1 em{font-style:italic;color:var(--accent)}
-.hero p{color:var(--ink-2);max-width:52ch;margin-inline:auto;font-size:15.5px;font-weight:300}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;justify-content:center}
+.hero-copy h1{font-size:clamp(30px,4.6vw,52px);line-height:1.08;margin-block:14px 16px}
+.hero-copy h1 em{font-style:italic;color:var(--accent)}
+.hero-copy p{color:var(--ink-2);max-width:52ch;margin-inline:auto;font-size:15.5px;font-weight:300}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:26px;justify-content:center}
 
-/* once a video or photo loads, the text turns white */
-.hero.has-media .eyebrow{color:rgba(255,255,255,.78)}
-.hero.has-media h1{color:#FFF;text-shadow:0 2px 24px rgba(0,0,0,.45)}
-.hero.has-media h1 em{color:#F0C8B8}
-.hero.has-media p{color:rgba(255,255,255,.90);text-shadow:0 1px 14px rgba(0,0,0,.5)}
-.hero.has-media .btn-ghost{border-color:rgba(255,255,255,.62);color:#FFF;background:rgba(255,255,255,.07)}
-.hero.has-media .btn-ghost:hover{background:rgba(255,255,255,.18);border-color:#FFF}
+/* nothing is written over the video, so it only needs a whisper of shading
+   at the very bottom to keep the little fabric strip readable */
+.hero.has-media .hero-scrim{
+  background:linear-gradient(to bottom, rgba(16,11,10,0) 62%, rgba(16,11,10,.34) 100%);
+}
 .hero.has-media .hero-tag{background:rgba(255,255,255,.93);color:#2A2320}
 
 .hero-toggle{
@@ -509,8 +508,8 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 
 /* ============ MOBILE ============ */
 @media(max-width:860px){
-  .hero{min-height:470px}
-  .hero-inner{padding:56px 20px}
+  .hero{aspect-ratio:4/3;min-height:0;max-height:none}
+  .hero-copy{padding:40px 20px 34px}
   .strip{grid-template-columns:1fr}
 }
 @media(max-width:700px){
@@ -522,10 +521,10 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   .wrap{padding-inline:16px}
   .announce{font-size:9.5px;letter-spacing:.1em;padding:8px 14px}
 
-  .hero{min-height:440px}
-  .hero-inner{padding:48px 18px}
-  .hero h1{margin-block:12px 14px}
-  .hero p{font-size:14.5px;max-width:34ch}
+  .hero{aspect-ratio:4/3}
+  .hero-copy{padding:34px 18px 30px}
+  .hero-copy h1{margin-block:11px 13px}
+  .hero-copy p{font-size:14.5px;max-width:34ch}
   .hero-cta{gap:9px;margin-top:22px}
   .hero-cta .btn{flex:1;min-width:0;padding:14px 12px;font-size:10px;letter-spacing:.12em}
   .hero-tag{font-size:9px;padding:10px 14px}
@@ -640,24 +639,24 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
       <img class="hero-photo" id="heroA" alt="" aria-hidden="true">
       <img class="hero-photo" id="heroB" alt="" aria-hidden="true">
       <video class="hero-video" id="heroVid" muted loop playsinline
-             preload="metadata" disablepictureinpicture aria-hidden="true"></video>
+             preload="none" disablepictureinpicture aria-hidden="true"></video>
     </div>
     <div class="hero-scrim"></div>
-
-    <div class="hero-inner">
-      <div class="eyebrow">Autumn / Winter 2026</div>
-      <h1>Original brand lawn, <em>honestly</em> priced.</h1>
-      <p>Three-piece unstitched printed lawn, picked from original brand stock and sold at one flat price. Order on the site, pay cash when your parcel reaches you.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="#shop">Shop collection</a>
-        <a class="btn btn-ghost" href="#delivery">Delivery info</a>
-      </div>
-    </div>
 
     <div class="hero-tag" id="heroTag">Lawn · Cambric · Chiffon</div>
     <button class="hero-toggle" id="heroToggle" aria-label="Pause video">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
     </button>
+  </section>
+
+  <section class="hero-copy">
+    <div class="eyebrow">Autumn / Winter 2026</div>
+    <h1>Original brand lawn, <em>honestly</em> priced.</h1>
+    <p>Three-piece unstitched printed lawn, picked from original brand stock and sold at one flat price. Order on the site, pay cash when your parcel reaches you.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#shop">Shop collection</a>
+      <a class="btn btn-ghost" href="#delivery">Delivery info</a>
+    </div>
   </section>
 
   <section class="wrap section" id="shop">
@@ -799,7 +798,13 @@ const CONFIG = {
   instagramUrl: "https://instagram.com/shizadressco",
   shippingFlat: 200,
   freeOver:     5000,
-  heroTag:      "Unstitched · 3 Piece · Printed lawn"   // the small strip under the banner
+  heroTag:      "Unstitched · 3 Piece · Printed lawn",  // the small strip under the banner
+
+  /* Banner files, named outright so the page never has to hunt for them.
+     heroVideo: "" turns the video off. heroPhotos may list more than one
+     and they will cross-fade.                                            */
+  heroVideo:    "images/hero.mp4",
+  heroPhotos:   ["images/hero.jpeg"]
 };
 
 /* ---------- catalogue ---------- */
@@ -819,6 +824,7 @@ const CONFIG = {
    ============================================================ */
 const PRODUCTS = [
   { id:"pistachio-vine", name:"Pistachio Vine", cat:"unstitched", price:2200, shape:"stack",
+    photos:["pistachio-vine.jpeg", "pistachio-vine-2.jpeg"],
     tone:["#DCE4C6", "#2C3A5E"], flag:"3Pc · Unstitched",
     desc:"Pistachio lawn with a navy leaf print and a flowing printed dupatta.",
     detail:{
@@ -849,6 +855,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"blush-bloom", name:"Blush Bloom", cat:"unstitched", price:2200, shape:"stack",
+    photos:["blush-bloom.jpeg", "blush-bloom-2.jpeg"],
     tone:["#F2D8DA", "#8E7CA6"], flag:"3Pc · Unstitched",
     desc:"Blush pink lawn scattered with mauve and plum blooms.",
     detail:{
@@ -879,6 +886,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"amber-fern", name:"Amber Fern", cat:"unstitched", price:2200, shape:"stack",
+    photos:["amber-fern.jpeg", "amber-fern-2.jpeg"],
     tone:["#E8C66A", "#1E5E5A"], flag:"3Pc · Unstitched",
     desc:"Mustard lawn under a canopy of green leaves, with a deep teal dupatta.",
     detail:{
@@ -911,6 +919,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"pine-ember", name:"Pine Ember", cat:"unstitched", price:2200, shape:"stack",
+    photos:["pine-ember.jpeg", "pine-ember-2.jpeg"],
     tone:["#CFD8CC", "#214038"], flag:"3Pc · Unstitched",
     desc:"Bottle-green lawn with rust and cream leaves, and a striped chiffon dupatta.",
     detail:{
@@ -941,6 +950,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"coral-ginkgo", name:"Coral Ginkgo", cat:"unstitched", price:2200, shape:"stack",
+    photos:["coral-ginkgo.jpeg", "coral-ginkgo-2.jpeg"],
     tone:["#F5CDC2", "#C2605A"], flag:"3Pc · Unstitched",
     desc:"Coral lawn with grey-violet florals and a ginkgo-print dupatta.",
     detail:{
@@ -971,6 +981,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"autumn-ivory", name:"Autumn Ivory", cat:"unstitched", price:2200, shape:"stack",
+    photos:["autumn-ivory.jpeg", "autumn-ivory-2.jpeg"],
     tone:["#F4E8D6", "#C2642E"], flag:"3Pc · Unstitched",
     desc:"Ivory lawn with rust maple leaves and a sunset-toned dupatta.",
     detail:{
@@ -1001,6 +1012,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"fuchsia-pebble", name:"Fuchsia Pebble", cat:"unstitched", price:2200, shape:"stack",
+    photos:["fuchsia-pebble.jpeg", "fuchsia-pebble-2.jpeg"],
     tone:["#F9D5E3", "#D81E7A"], flag:"3Pc · Unstitched",
     desc:"Bright fuchsia lawn with a white pebble print and a bordered dupatta.",
     detail:{
@@ -1033,6 +1045,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"mint-hibiscus", name:"Mint Hibiscus", cat:"unstitched", price:2200, shape:"stack",
+    photos:["mint-hibiscus.jpeg"],
     tone:["#D4EAE6", "#2E5E8E"], flag:"3Pc · Unstitched",
     desc:"Mint lawn with blue and cream hibiscus, and a striped chiffon dupatta.",
     detail:{
@@ -1065,6 +1078,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"scarlet-batik", name:"Scarlet Batik", cat:"unstitched", price:2200, shape:"stack",
+    photos:["scarlet-batik.jpeg"],
     tone:["#F7D8D0", "#D62B23"], flag:"3Pc · Unstitched",
     desc:"Scarlet lawn with a white batik print and an ornate bordered dupatta.",
     detail:{
@@ -1097,6 +1111,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"honey-blossom", name:"Honey Blossom", cat:"unstitched", price:2200, shape:"stack",
+    photos:["honey-blossom.jpeg"],
     tone:["#EFDCAC", "#B4832E"], flag:"3Pc · Unstitched",
     desc:"Honey-gold lawn with cream blossoms and a striped butterfly dupatta.",
     detail:{
@@ -1128,6 +1143,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"rose-paisley", name:"Rose Paisley", cat:"unstitched", price:2200, shape:"stack",
+    photos:["rose-paisley.jpeg"],
     tone:["#F6DCD8", "#D8838A"], flag:"3Pc · Unstitched",
     desc:"Soft rose lawn with a cream paisley block print.",
     detail:{
@@ -1159,6 +1175,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"indigo-block", name:"Indigo Block", cat:"unstitched", price:2200, shape:"stack",
+    photos:["indigo-block.jpeg"],
     tone:["#D4E0E8", "#3A6E96"], flag:"3Pc · Unstitched",
     desc:"Denim-blue lawn with ochre block-print flowers and a striped dupatta.",
     detail:{
@@ -1190,6 +1207,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"teal-swirl", name:"Teal Swirl", cat:"unstitched", price:2200, shape:"stack",
+    photos:["teal-swirl.jpeg", "teal-swirl-2.jpeg"],
     tone:["#C4E0DA", "#15485C"], flag:"3Pc · Unstitched",
     desc:"Sea-green lawn with a navy swirl print and an ombré dupatta.",
     detail:{
@@ -1283,6 +1301,14 @@ function artwork(p, seed){
 /* ---------- helpers ---------- */
 const rs = n => "Rs " + n.toLocaleString("en-PK");
 const byId = id => document.getElementById(id);
+/* photo filenames in the catalogue are written bare; make them real paths once,
+   before the first render, so no image is ever requested from the wrong place */
+PRODUCTS.forEach(p => {
+  p.photos = Array.isArray(p.photos)
+    ? p.photos.map(f => f.includes("/") ? f : "images/" + f)
+    : [];
+});
+
 const find = id => PRODUCTS.find(p => p.id === id);
 const esc = s => s.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
 
@@ -1309,7 +1335,7 @@ function renderGrid(){
     <article class="card">
       <div class="card-art${(p.photos||[]).length ? ' has-photo' : ''}" data-gal="${p.id}" data-idx="0" data-open="${p.id}" role="button" tabindex="0" aria-label="Open ${p.name}">
         ${artwork(p, i)}
-        ${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="${p.name}" loading="lazy">` : ``}
+        ${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="${p.name}" loading="${i < 2 ? "eager" : "lazy"}" decoding="async" fetchpriority="${i < 2 ? "high" : "low"}">` : ``}
         ${(p.photos||[]).length > 1 ? `
           <button class="gal-btn prev" data-step="-1" aria-label="Previous photo of ${p.name}"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
           <button class="gal-btn next" data-step="1" aria-label="Next photo of ${p.name}"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>
@@ -1626,8 +1652,17 @@ async function findPhoto(base, preferred){
   return null;
 }
 async function loadPhotos(){
-  await Promise.all(PRODUCTS.map(async p => {
-    p.photos = [];
+  /* Products that list their own photos need no look-up at all: the files are
+     named outright, the browser fetches each one only when the card scrolls
+     into view, and nothing is requested that does not exist.               */
+  const unlisted = PRODUCTS.filter(p => !p.photos.length);
+
+  /* Only products WITHOUT a photos list fall back to searching for files.
+     Handy when adding a product in a hurry, but slower — it has to request
+     each candidate name to find out whether it exists. Add a photos: line
+     once the product settles.                                              */
+  if (!unlisted.length) return;
+  await Promise.all(unlisted.map(async p => {
     const first = await findPhoto(p.id);
     if (!first) return;
     p.photos.push(first.url);
@@ -1648,48 +1683,25 @@ async function loadPhotos(){
    hero-2.jpeg, hero-3.jpeg → the photos slowly cross-fade.
    With neither, the drawing stays — the banner is never blank.
    ============================================================ */
-const VIDEO_EXTS = ["mp4", "webm", "MP4", "MOV", "mov"];
 
-function tryVideo(src){
-  return new Promise(resolve => {
-    const v = document.createElement("video");
-    v.preload = "metadata"; v.muted = true;
-    v.onloadedmetadata = () => resolve(src);
-    v.onerror = () => resolve(null);
-    v.src = src;
-  });
-}
-async function findVideo(base){
-  for (const ext of VIDEO_EXTS){
-    const hit = await tryVideo(`images/${base}.${ext}`);
-    if (hit) return hit;
-  }
-  return null;
-}
 
 async function loadHero(){
   const hero = byId("hero");
   const A = byId("heroA"), B = byId("heroB");
 
-  /* 1 — photos: they act as the poster, and as the banner if there is no video */
-  const first = await findPhoto("hero");
-  const shots = [];
-  if (first){
-    shots.push(first.url);
-    for (let n = 2; n <= 6; n++){
-      const more = await findPhoto(`hero-${n}`, first.ext);
-      if (!more) break;
-      shots.push(more.url);
-    }
+  /* 1 — poster photo, straight away */
+  const shots = (CONFIG.heroPhotos || []).slice();
+  if (shots.length){
     A.src = shots[0];
     A.classList.add("on");
     hero.classList.add("has-media");
   }
 
-  /* 2 — video */
-  const vidSrc = await findVideo("hero");
+  /* 2 — video, but only once the page itself has finished loading, so the
+         photos and the collection are on screen before it starts pulling
+         megabytes down the line. */
+  const vidSrc = CONFIG.heroVideo;
   if (!vidSrc){
-    /* no video → let the photos rotate */
     if (shots.length > 1){
       let i = 0, front = A, back = B;
       setInterval(() => {
@@ -1703,40 +1715,44 @@ async function loadHero(){
     return;
   }
 
-  const v = byId("heroVid");
-  if (shots.length) v.poster = shots[0];
-  v.src = vidSrc;
-  hero.classList.add("has-media", "has-video");
+  const start = () => {
+    const v = byId("heroVid");
+    if (shots.length) v.poster = shots[0];
 
-  /* save data: if the visitor has data saver on, or asked for reduced motion,
-     the video does not autoplay — they just see the poster */
-  const saveData = navigator.connection && navigator.connection.saveData;
-  const noMotionNow = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    /* save data: with data saver on, or reduced motion asked for, the video
+       is never fetched at all — the poster simply stays. */
+    const saveData = navigator.connection && navigator.connection.saveData;
+    if (saveData || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
-  const btn = byId("heroToggle");
-  const PAUSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
-  const PLAY  = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>`;
-  const paint = () => {
-    const playing = !v.paused;
-    btn.innerHTML = playing ? PAUSE : PLAY;
-    btn.setAttribute("aria-label", playing ? "Pause video" : "Play video");
-  };
-  btn.onclick = () => { v.paused ? v.play() : v.pause(); paint(); };
+    v.preload = "auto";
+    v.src = vidSrc;
+    hero.classList.add("has-video");
 
-  v.addEventListener("loadeddata", () => v.classList.add("on"), { once:true });
+    const btn = byId("heroToggle");
+    const PAUSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
+    const PLAY  = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>`;
+    const paint = () => {
+      const playing = !v.paused;
+      btn.innerHTML = playing ? PAUSE : PLAY;
+      btn.setAttribute("aria-label", playing ? "Pause video" : "Play video");
+    };
+    btn.onclick = () => { v.paused ? v.play() : v.pause(); paint(); };
 
-  if (saveData || noMotionNow){ v.classList.add("on"); paint(); return; }
-  v.play().then(paint).catch(paint);        // if autoplay is blocked, the poster stays
+    v.addEventListener("loadeddata", () => { v.classList.add("on"); paint(); }, { once:true });
+    v.addEventListener("error", () => hero.classList.remove("has-video"), { once:true });
+    v.play().then(paint).catch(paint);     // if autoplay is blocked, the poster stays
 
-  /* pause the video when it scrolls out of view — saves battery and data */
-  if ("IntersectionObserver" in window){
-    new IntersectionObserver(es => {
-      es.forEach(e => {
+    /* pause it when it scrolls out of view — saves battery and data */
+    if ("IntersectionObserver" in window){
+      new IntersectionObserver(es => es.forEach(e => {
         if (e.isIntersecting && btn.getAttribute("aria-label") === "Pause video") v.play().catch(() => {});
         else if (!e.isIntersecting) v.pause();
-      });
-    }, { threshold:0.1 }).observe(hero);
-  }
+      }), { threshold:0.1 }).observe(hero);
+    }
+  };
+
+  if (document.readyState === "complete") setTimeout(start, 200);
+  else addEventListener("load", () => setTimeout(start, 200), { once:true });
 }
 
 /* ============================================================
@@ -1772,14 +1788,14 @@ function ppStageHTML(p){
   const has = (p.photos || []).length;
   return `
     <div class="pp-stage" id="ppStage">
-      ${has ? `<img src="${p.photos[0]}" alt="${esc(p.name)}" id="ppImg" data-ppzoom>` : artwork(p, 0)}
+      ${has ? `<img src="${p.photos[0]}" alt="${esc(p.name)}" id="ppImg" decoding="async" data-ppzoom>` : artwork(p, 0)}
       ${has > 1 ? `
         <button class="gal-btn prev" data-ppstep="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
         <button class="gal-btn next" data-ppstep="1" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>` : ``}
       ${has ? `<button class="pp-zoom" data-ppzoom>Zoom</button>` : ``}
     </div>
     ${has > 1 ? `<div class="pp-thumbs" id="ppThumbs">${p.photos.map((src, n) =>
-      `<button data-ppthumb="${n}" aria-current="${n === 0}" aria-label="Photo ${n + 1}"><img src="${src}" alt="" loading="lazy"></button>`).join("")}</div>` : ``}`;
+      `<button data-ppthumb="${n}" aria-current="${n === 0}" aria-label="Photo ${n + 1}"><img src="${src}" alt="" loading="lazy" decoding="async"></button>`).join("")}</div>` : ``}`;
 }
 
 function buildProduct(p){

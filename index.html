@@ -97,6 +97,8 @@ button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;pad
 /* A <button> wraps its children in an anonymous box that fills the whole
    button, so flex or grid centring on the button never reaches the icon
    inside. Pinning the icon to the centre is the one thing that always works. */
+.gal-btn,.icon-btn,.lb-nav{position:relative}
+.gal-btn{position:absolute}.lb-nav{position:absolute}
 .gal-btn svg,.icon-btn svg,.lb-nav svg{position:absolute;inset:0;margin:auto}
 input,select,textarea{font:inherit;color:inherit}
 a{color:inherit}
@@ -141,6 +143,7 @@ a{color:inherit}
 }
 .head-right{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 .icon-btn{
+  position:relative;                       /* the pinned icon measures from here */
   width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:2px;
   border:1px solid transparent;color:var(--ink-2);transition:color .2s,border-color .2s;
 }
@@ -164,15 +167,23 @@ a{color:inherit}
 /* ---------- hero: full-width landscape banner ---------- */
 .hero{
   position:relative;width:100%;overflow:hidden;
-  aspect-ratio:16/9;max-height:80vh;background-color:#120D0C;
+  /* Always a true 16:9 box, so the video fits it exactly — never cropped,
+     never letterboxed. On a phone that is the full screen width. On a wide
+     laptop the width is capped so the banner never grows taller than 76% of
+     the window, and it sits centred with the page colour either side.      */
+  aspect-ratio:16/9;
+  width:min(100%, calc(76vh * 16 / 9));
+  margin-inline:auto;
   border-bottom:1px solid var(--line);
   background:radial-gradient(120% 90% at 20% 10%, var(--surface-2) 0%, transparent 60%),
              linear-gradient(160deg, var(--art-1) 0%, var(--art-2) 45%, var(--art-3) 100%);
 }
-.hero-media{position:absolute;inset:0}
+.hero-media{position:absolute;inset:0;background:var(--ground)}
 .hero-media>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-/* the video keeps its own shape — nothing is ever cut off its edges */
-.hero-video{object-fit:contain}
+/* box and video are both 16:9, so this fills it exactly with nothing cut off */
+.hero-video{object-fit:cover}
+/* an <img> with no src draws a broken-image icon — keep it out of the way */
+.hero-photo:not([src]){display:none}
 .hero-photo,.hero-video{opacity:0;transition:opacity .9s ease}
 .hero-photo.on,.hero-video.on{opacity:1}
 .hero-scrim{

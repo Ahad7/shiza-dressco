@@ -93,7 +93,11 @@ body.locked{overflow:hidden}
 h1,h2,h3{font-family:"Cormorant Garamond",Georgia,serif;font-weight:400;margin:0;text-wrap:balance;letter-spacing:.01em}
 p{margin:0}
 img{max-width:100%}
-button{font:inherit;color:inherit;cursor:pointer;border:none;background:none}
+button{font:inherit;color:inherit;cursor:pointer;border:none;background:none;padding:0}
+/* A <button> wraps its children in an anonymous box that fills the whole
+   button, so flex or grid centring on the button never reaches the icon
+   inside. Pinning the icon to the centre is the one thing that always works. */
+.gal-btn svg,.icon-btn svg,.lb-nav svg{position:absolute;inset:0;margin:auto}
 input,select,textarea{font:inherit;color:inherit}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
@@ -137,7 +141,7 @@ a{color:inherit}
 }
 .head-right{display:flex;justify-content:flex-end;align-items:center;gap:8px}
 .icon-btn{
-  width:38px;height:38px;display:grid;place-items:center;border-radius:2px;
+  width:38px;height:38px;display:inline-flex;align-items:center;justify-content:center;border-radius:2px;
   border:1px solid transparent;color:var(--ink-2);transition:color .2s,border-color .2s;
 }
 .icon-btn:hover{color:var(--ink);border-color:var(--line-strong)}
@@ -152,7 +156,7 @@ a{color:inherit}
 .cart-btn:hover{border-color:var(--accent);background:var(--accent-wash)}
 .cart-count{
   min-width:18px;height:18px;border-radius:9px;background:var(--accent);
-  color:var(--accent-ink);font-size:10px;display:grid;place-items:center;
+  color:var(--accent-ink);font-size:10px;display:inline-flex;align-items:center;justify-content:center;
   padding-inline:5px;letter-spacing:0;font-weight:500;
 }
 
@@ -160,13 +164,15 @@ a{color:inherit}
 /* ---------- hero: full-width landscape banner ---------- */
 .hero{
   position:relative;width:100%;overflow:hidden;
-  aspect-ratio:16/9;min-height:300px;max-height:80vh;
+  aspect-ratio:16/9;max-height:80vh;background-color:#120D0C;
   border-bottom:1px solid var(--line);
   background:radial-gradient(120% 90% at 20% 10%, var(--surface-2) 0%, transparent 60%),
              linear-gradient(160deg, var(--art-1) 0%, var(--art-2) 45%, var(--art-3) 100%);
 }
 .hero-media{position:absolute;inset:0}
 .hero-media>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+/* the video keeps its own shape — nothing is ever cut off its edges */
+.hero-video{object-fit:contain}
 .hero-photo,.hero-video{opacity:0;transition:opacity .9s ease}
 .hero-photo.on,.hero-video.on{opacity:1}
 .hero-scrim{
@@ -191,13 +197,6 @@ a{color:inherit}
 }
 .hero.has-media .hero-tag{background:rgba(255,255,255,.93);color:#2A2320}
 
-.hero-toggle{
-  position:absolute;right:14px;bottom:14px;z-index:3;
-  width:38px;height:38px;border-radius:50%;display:none;place-items:center;
-  background:rgba(255,255,255,.88);color:#2A2320;
-}
-.hero-toggle svg{width:15px;height:15px;fill:currentColor}
-.hero.has-video .hero-toggle{display:grid}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:14px 26px;border-radius:2px;font-size:11px;letter-spacing:.18em;
@@ -247,17 +246,24 @@ a{color:inherit}
 .card-art:hover img{transform:scale(1.035)}
 .card-art:active{opacity:.92}
 .gal-btn{
-  position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;
-  background:color-mix(in srgb,var(--surface) 86%,transparent);color:var(--ink);
-  display:grid;place-items:center;opacity:0;transition:opacity .2s;z-index:2;
+  position:absolute;top:50%;translate:0 -50%;width:28px;height:28px;border-radius:50%;
+  display:inline-flex;align-items:center;justify-content:center;
+  /* these sit on a photo, so they stay light in both themes */
+  background:rgba(255,255,255,.82);color:#2A2320;
+  box-shadow:0 1px 4px rgba(0,0,0,.18);
+  opacity:0;transition:opacity .2s,background .2s;z-index:3;
 }
 .card-art:hover .gal-btn,.card-art:focus-within .gal-btn{opacity:1}
-.gal-btn.prev{left:8px}.gal-btn.next{right:8px}
-.gal-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.gal-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;z-index:2}
-.gal-dots button{width:6px;height:6px;border-radius:50%;background:var(--surface);opacity:.5;padding:0}
-.gal-dots button[aria-current="true"]{opacity:1;width:16px;border-radius:3px}
-@media(hover:none){.gal-btn{opacity:1}}
+.gal-btn:hover{background:#fff}
+.gal-btn.prev{left:7px}.gal-btn.next{right:7px}
+.gal-btn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.gal-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;z-index:3}
+.gal-dots button{
+  width:6px;height:6px;border-radius:50%;background:#fff;opacity:.55;
+  box-shadow:0 1px 3px rgba(0,0,0,.35);transition:opacity .2s,width .2s;
+}
+.gal-dots button[aria-current="true"]{opacity:1;width:15px;border-radius:3px}
+@media(hover:none){.gal-btn{opacity:.92}}
 
 /* full-screen photo viewer */
 .lb{position:fixed;inset:0;z-index:60;background:rgba(14,10,9,.94);display:none;
@@ -265,9 +271,9 @@ a{color:inherit}
 .lb.open{display:flex}
 .lb img{max-width:min(92vw,900px);max-height:84vh;object-fit:contain;border-radius:2px}
 .lb-close{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:16px;
-  width:42px;height:42px;display:grid;place-items:center;color:#F2EDE8;font-size:26px;line-height:1}
+  width:42px;height:42px;display:inline-flex;align-items:center;justify-content:center;color:#F2EDE8;font-size:26px;line-height:1}
 .lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;
-  background:rgba(255,255,255,.12);color:#F2EDE8;display:grid;place-items:center}
+  background:rgba(255,255,255,.12);color:#F2EDE8;display:inline-flex;align-items:center;justify-content:center}
 .lb-nav.prev{left:14px}.lb-nav.next{right:14px}
 .lb-nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .lb-count{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;
@@ -508,7 +514,6 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 
 /* ============ MOBILE ============ */
 @media(max-width:860px){
-  .hero{aspect-ratio:4/3;min-height:0;max-height:none}
   .hero-copy{padding:40px 20px 34px}
   .strip{grid-template-columns:1fr}
 }
@@ -521,7 +526,6 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   .wrap{padding-inline:16px}
   .announce{font-size:9.5px;letter-spacing:.1em;padding:8px 14px}
 
-  .hero{aspect-ratio:4/3}
   .hero-copy{padding:34px 18px 30px}
   .hero-copy h1{margin-block:11px 13px}
   .hero-copy p{font-size:14.5px;max-width:34ch}
@@ -644,9 +648,6 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
     <div class="hero-scrim"></div>
 
     <div class="hero-tag" id="heroTag">Lawn · Cambric · Chiffon</div>
-    <button class="hero-toggle" id="heroToggle" aria-label="Pause video">
-      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
-    </button>
   </section>
 
   <section class="hero-copy">
@@ -1728,25 +1729,16 @@ async function loadHero(){
     v.src = vidSrc;
     hero.classList.add("has-video");
 
-    const btn = byId("heroToggle");
-    const PAUSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
-    const PLAY  = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>`;
-    const paint = () => {
-      const playing = !v.paused;
-      btn.innerHTML = playing ? PAUSE : PLAY;
-      btn.setAttribute("aria-label", playing ? "Pause video" : "Play video");
-    };
-    btn.onclick = () => { v.paused ? v.play() : v.pause(); paint(); };
-
-    v.addEventListener("loadeddata", () => { v.classList.add("on"); paint(); }, { once:true });
+    v.addEventListener("loadeddata", () => v.classList.add("on"), { once:true });
     v.addEventListener("error", () => hero.classList.remove("has-video"), { once:true });
-    v.play().then(paint).catch(paint);     // if autoplay is blocked, the poster stays
+    v.play().catch(() => {});              // if autoplay is blocked, the poster stays
 
-    /* pause it when it scrolls out of view — saves battery and data */
+    /* pause it when it scrolls out of view, resume when it comes back —
+       saves battery and data, and needs no button */
     if ("IntersectionObserver" in window){
       new IntersectionObserver(es => es.forEach(e => {
-        if (e.isIntersecting && btn.getAttribute("aria-label") === "Pause video") v.play().catch(() => {});
-        else if (!e.isIntersecting) v.pause();
+        if (e.isIntersecting) v.play().catch(() => {});
+        else v.pause();
       }), { threshold:0.1 }).observe(hero);
     }
   };
@@ -2028,20 +2020,30 @@ document.addEventListener("click", e => {
   if (!id) return;
   const el = document.getElementById(id);
   if (!el) return;
-  e.preventDefault();                            // browser ka jhatka-jump roko
+  e.preventDefault();                            // stop the browser's own jump
   scrollToTarget(el);
-  history.replaceState(null, "", "#" + id);      // URL update, bina jump
-  el.setAttribute("tabindex", "-1");             // keyboard/screen-reader focus wahin
+  /* deliberately NOT writing the section into the URL: otherwise the hash
+     sticks, and a refresh would drop the visitor back at that section
+     instead of the top of the page. Product links still get their own URL. */
+  el.setAttribute("tabindex", "-1");
   el.focus({ preventScroll:true });
 }, false);
 
-/* opened by a direct link: a product link opens the page, otherwise scroll to the section */
+/* What happens when the page is opened or refreshed.
+   A product link (#pistachio-vine) opens that product. Anything else starts at
+   the very top: browsers remember the old scroll position on refresh, which is
+   why a reload used to land you down at Delivery. Back and forward are left
+   alone so they still return you where you were. */
 addEventListener("load", () => {
   const id = location.hash.slice(1);
-  if (!id) return;
-  if (typeof find === "function" && find(id)){ openProduct(id, false); return; }
-  const el = document.getElementById(id);
-  if (el) setTimeout(() => scrollToTarget(el), 60);
+  if (id && typeof find === "function" && find(id)){ openProduct(id, false); return; }
+
+  const nav = (performance.getEntriesByType("navigation")[0] || {}).type;
+  if (nav === "back_forward") return;            // let the browser restore it
+
+  if (id) history.replaceState(null, "", location.pathname + location.search);
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => window.scrollTo(0, 0));   // after layout settles
 });
 
 paintThemeIcon();

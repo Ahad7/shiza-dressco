@@ -71,7 +71,13 @@
 }
 
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+
+/* ---------- anchor scrolling ----------
+   --head-h is the real sticky-header height, set by JS on every resize.
+   scroll-margin-top keeps the heading from hiding behind the header. */
+:root{--head-h:58px}
+#shop,#fabric,#delivery,.anchor{scroll-margin-top:calc(var(--head-h) + 20px)}
 body{
   margin:0;
   background:var(--ground);
@@ -149,11 +155,50 @@ a{color:inherit}
 }
 
 /* ---------- hero ---------- */
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center;padding-block:60px 54px}
-.hero h1{font-size:clamp(34px,5.4vw,62px);line-height:1.07;margin-block:18px 20px}
+/* ---------- hero: full-width landscape banner ---------- */
+.hero{
+  position:relative;width:100%;overflow:hidden;
+  min-height:clamp(430px,52vw,620px);
+  display:grid;place-items:center;
+  border-bottom:1px solid var(--line);
+  background:radial-gradient(120% 90% at 20% 10%, var(--surface-2) 0%, transparent 60%),
+             linear-gradient(160deg, var(--art-1) 0%, var(--art-2) 45%, var(--art-3) 100%);
+}
+.hero-media{position:absolute;inset:0}
+.hero-media>*{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.hero-photo,.hero-video{opacity:0;transition:opacity .9s ease}
+.hero-photo.on,.hero-video.on{opacity:1}
+.hero-scrim{
+  position:absolute;inset:0;opacity:0;transition:opacity .6s ease;pointer-events:none;
+  background:linear-gradient(to bottom, rgba(16,11,10,.58) 0%, rgba(16,11,10,.28) 42%, rgba(16,11,10,.66) 100%);
+}
+.hero.has-media .hero-scrim{opacity:1}
+
+.hero-inner{
+  position:relative;z-index:2;max-width:860px;width:100%;margin:0 auto;
+  padding:76px 20px;text-align:center;
+}
+.hero h1{font-size:clamp(32px,5.2vw,60px);line-height:1.07;margin-block:16px 18px}
 .hero h1 em{font-style:italic;color:var(--accent)}
-.hero p{color:var(--ink-2);max-width:42ch;font-size:15.5px;font-weight:300}
-.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
+.hero p{color:var(--ink-2);max-width:52ch;margin-inline:auto;font-size:15.5px;font-weight:300}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px;justify-content:center}
+
+/* once a video or photo loads, the text turns white */
+.hero.has-media .eyebrow{color:rgba(255,255,255,.78)}
+.hero.has-media h1{color:#FFF;text-shadow:0 2px 24px rgba(0,0,0,.45)}
+.hero.has-media h1 em{color:#F0C8B8}
+.hero.has-media p{color:rgba(255,255,255,.90);text-shadow:0 1px 14px rgba(0,0,0,.5)}
+.hero.has-media .btn-ghost{border-color:rgba(255,255,255,.62);color:#FFF;background:rgba(255,255,255,.07)}
+.hero.has-media .btn-ghost:hover{background:rgba(255,255,255,.18);border-color:#FFF}
+.hero.has-media .hero-tag{background:rgba(255,255,255,.93);color:#2A2320}
+
+.hero-toggle{
+  position:absolute;right:14px;bottom:14px;z-index:3;
+  width:38px;height:38px;border-radius:50%;display:none;place-items:center;
+  background:rgba(255,255,255,.88);color:#2A2320;
+}
+.hero-toggle svg{width:15px;height:15px;fill:currentColor}
+.hero.has-video .hero-toggle{display:grid}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   padding:14px 26px;border-radius:2px;font-size:11px;letter-spacing:.18em;
@@ -165,15 +210,8 @@ a{color:inherit}
 .btn-ghost{border:1px solid var(--line-strong);color:var(--ink)}
 .btn-ghost:hover{border-color:var(--accent);background:var(--accent-wash)}
 
-.hero-art{
-  position:relative;aspect-ratio:4/5;max-width:100%;border-radius:2px;overflow:hidden;
-  background:radial-gradient(120% 90% at 20% 10%, var(--surface-2) 0%, transparent 60%),
-             linear-gradient(160deg, var(--art-1) 0%, var(--art-2) 45%, var(--art-3) 100%);
-  box-shadow:var(--shadow);
-}
-.hero-art svg{position:absolute;inset:0;width:100%;height:100%}
 .hero-tag{
-  position:absolute;left:0;bottom:0;background:var(--surface);padding:13px 18px;
+  position:absolute;left:0;bottom:0;z-index:3;background:var(--surface);padding:13px 18px;
   font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-2);
 }
 
@@ -198,9 +236,45 @@ a{color:inherit}
 /* ---------- product grid ---------- */
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(248px,1fr));gap:36px 26px}
 .card{display:flex;flex-direction:column;gap:12px}
-.card-art{position:relative;aspect-ratio:3/4;max-width:100%;overflow:hidden;border-radius:2px;background:var(--surface-2)}
+.card-art{
+  position:relative;aspect-ratio:3/4;max-width:100%;overflow:hidden;border-radius:2px;
+  background:var(--surface-2);cursor:pointer;
+}
 .card-art svg{position:absolute;inset:0;width:100%;height:100%}
-.card-art img,.li-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.card-art img,.li-art img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;
+  transition:transform .5s cubic-bezier(.22,.61,.36,1);
+}
+.card-art:hover img{transform:scale(1.035)}
+.card-art:active{opacity:.92}
+.gal-btn{
+  position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;
+  background:color-mix(in srgb,var(--surface) 86%,transparent);color:var(--ink);
+  display:grid;place-items:center;opacity:0;transition:opacity .2s;z-index:2;
+}
+.card-art:hover .gal-btn,.card-art:focus-within .gal-btn{opacity:1}
+.gal-btn.prev{left:8px}.gal-btn.next{right:8px}
+.gal-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gal-dots{position:absolute;left:0;right:0;bottom:9px;display:flex;justify-content:center;gap:5px;z-index:2}
+.gal-dots button{width:6px;height:6px;border-radius:50%;background:var(--surface);opacity:.5;padding:0}
+.gal-dots button[aria-current="true"]{opacity:1;width:16px;border-radius:3px}
+@media(hover:none){.gal-btn{opacity:1}}
+
+/* full-screen photo viewer */
+.lb{position:fixed;inset:0;z-index:60;background:rgba(14,10,9,.94);display:none;
+    align-items:center;justify-content:center;padding:20px}
+.lb.open{display:flex}
+.lb img{max-width:min(92vw,900px);max-height:84vh;object-fit:contain;border-radius:2px}
+.lb-close{position:absolute;top:calc(14px + env(safe-area-inset-top,0px));right:16px;
+  width:42px;height:42px;display:grid;place-items:center;color:#F2EDE8;font-size:26px;line-height:1}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;
+  background:rgba(255,255,255,.12);color:#F2EDE8;display:grid;place-items:center}
+.lb-nav.prev{left:14px}.lb-nav.next{right:14px}
+.lb-nav svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lb-count{position:absolute;bottom:calc(20px + env(safe-area-inset-bottom,0px));left:0;right:0;text-align:center;
+  color:#B8AEA7;font-size:11px;letter-spacing:.2em;font-variant-numeric:tabular-nums}
+.lb-cap{position:absolute;top:calc(20px + env(safe-area-inset-top,0px));left:0;right:0;text-align:center;
+  color:#F2EDE8;font-family:"Cormorant Garamond",Georgia,serif;font-size:20px}
 .card-flag{
   position:absolute;top:9px;left:9px;background:var(--surface);color:var(--ink-2);
   font-size:9px;letter-spacing:.14em;text-transform:uppercase;padding:5px 8px;border-radius:2px;
@@ -208,20 +282,8 @@ a{color:inherit}
 .card-name{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;line-height:1.2}
 .card-desc{font-size:12.5px;color:var(--ink-2);font-weight:300;line-height:1.5;margin-top:2px}
 .card-price{font-size:14px;font-variant-numeric:tabular-nums;margin-top:5px}
-.card-foot{display:flex;gap:8px;align-items:center;margin-top:auto;padding-top:6px}
-.size-select{
-  flex:1;min-width:0;background:var(--surface);border:1px solid var(--line-strong);
-  border-radius:2px;padding:10px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--ink);appearance:none;
-  background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),
-                   linear-gradient(135deg,currentColor 50%,transparent 50%);
-  background-position:calc(100% - 15px) calc(50% + 1px), calc(100% - 11px) calc(50% + 1px);
-  background-size:4px 4px, 4px 4px;background-repeat:no-repeat;
-}
-.unstitched-note{
-  flex:1;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
-  border:1px dashed var(--line-strong);padding:10px 8px;border-radius:2px;text-align:center;line-height:1.4;
-}
+.card-foot{margin-top:auto;padding-top:10px}
+.card-foot .add-btn{width:100%;padding:13px 16px}
 .add-btn{
   background:var(--ink);color:var(--ground);padding:11px 16px;border-radius:2px;
   font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;
@@ -242,11 +304,6 @@ a{color:inherit}
 .info dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:9px 18px;font-size:13px}
 .info dt{color:var(--ink-3);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;padding-top:3px}
 .info dd{margin:0;color:var(--ink-2);font-weight:300}
-.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
-.size-table{width:100%;min-width:280px;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
-.size-table th,.size-table td{text-align:left;padding:8px 12px 8px 0;border-bottom:1px solid var(--line)}
-.size-table th{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
-.size-table td{color:var(--ink-2);font-weight:300}
 
 /* ---------- footer ---------- */
 footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
@@ -355,10 +412,105 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 .next-steps li{font-size:12.5px;color:var(--ink-2);font-weight:300}
 .stack-btns{display:grid;gap:9px}
 
+/* ---------- product page (full-screen overlay) ---------- */
+.pp{
+  position:fixed;inset:0;z-index:45;background:var(--ground);
+  display:flex;flex-direction:column;
+  padding-top:env(safe-area-inset-top,0px);
+  /* glide in rather than snap */
+  opacity:0;visibility:hidden;pointer-events:none;
+  transform:translateY(16px) scale(.993);transform-origin:50% 0;
+  transition:opacity .26s ease, transform .40s cubic-bezier(.22,.61,.36,1), visibility .40s;
+}
+.pp.open{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+/* the content rises a touch behind the fade */
+.pp .pp-top,.pp .pp-detail{
+  opacity:0;transform:translateY(14px);
+  transition:opacity .34s ease .08s, transform .46s cubic-bezier(.22,.61,.36,1) .08s;
+}
+.pp.open .pp-top{transition-delay:.06s}
+.pp.open .pp-detail{transition-delay:.13s}
+.pp.open .pp-top,.pp.open .pp-detail{opacity:1;transform:none}
+.pp-head{
+  flex:0 0 auto;display:flex;align-items:center;gap:12px;
+  padding:11px 20px;border-bottom:1px solid var(--line);background:var(--ground);
+}
+.pp-back{
+  display:inline-flex;align-items:center;gap:7px;background:none;border:0;cursor:pointer;
+  color:var(--ink-2);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:6px 0;
+}
+.pp-back:hover{color:var(--ink)}
+.pp-back svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.pp-head .wordmark{flex:1;font-size:19px}
+.pp-body{flex:1 1 auto;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.pp-inner{max-width:var(--maxw);margin:0 auto;padding:30px 20px 70px}
+
+/* top half: gallery + buy box */
+.pp-top{display:grid;grid-template-columns:1.05fr .95fr;gap:44px;align-items:start}
+
+.pp-gal{display:grid;gap:10px;position:sticky;top:18px}
+.pp-stage{
+  position:relative;aspect-ratio:4/5;border-radius:3px;overflow:hidden;
+  background:var(--surface-2);border:1px solid var(--line);
+}
+/* contain, not cover — the catalogue shot is shown whole, nothing cropped away */
+.pp-stage img{width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}
+.pp-stage svg{width:100%;height:100%;display:block}
+.pp-stage .gal-btn{opacity:1}
+.pp-zoom{
+  position:absolute;right:10px;bottom:10px;z-index:3;background:rgba(255,255,255,.9);color:#2A2320;
+  border-radius:2px;padding:6px 10px;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+}
+.pp-thumbs{display:flex;gap:8px;flex-wrap:wrap}
+.pp-thumbs button{
+  width:62px;aspect-ratio:4/5;border-radius:2px;overflow:hidden;padding:0;
+  border:1px solid var(--line);background:var(--surface-2);cursor:pointer;
+}
+.pp-thumbs button[aria-current="true"]{border-color:var(--accent);outline:1px solid var(--accent)}
+.pp-thumbs img{width:100%;height:100%;object-fit:contain;display:block}
+
+.pp-buy{display:grid;gap:14px;align-content:start}
+.pp-flag{
+  justify-self:start;background:var(--accent-wash);color:var(--accent);
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;padding:6px 10px;border-radius:2px;
+}
+.pp-title{font-family:"Cormorant Garamond",Georgia,serif;font-size:38px;line-height:1.1;font-weight:400}
+.pp-tagline{font-size:13px;color:var(--ink-2);font-weight:300;line-height:1.6;margin-top:-6px}
+.pp-price{font-size:23px;font-variant-numeric:lining-nums tabular-nums}
+.pp-price small{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.1em;text-transform:uppercase;margin-top:5px;font-variant-numeric:normal}
+.pp-intro{font-size:14px;line-height:1.75;color:var(--ink-2);font-weight:300}
+.pp-buyrow{margin-top:4px}
+.pp-buyrow .add-btn{width:100%;padding:15px 16px;font-size:11px}
+.pp-assure{display:grid;gap:7px;margin-top:4px;border-top:1px solid var(--line);padding-top:16px}
+.pp-assure div{font-size:12px;color:var(--ink-2);font-weight:300}
+.pp-assure b{font-weight:500;color:var(--ink)}
+
+/* bottom half: the written detail */
+.pp-detail{margin-top:56px;display:grid;grid-template-columns:repeat(2,1fr);gap:40px 48px;align-items:start}
+.pp-detail.single{grid-template-columns:1fr;max-width:760px}
+.pp-block h3{
+  font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-3);
+  font-family:"Jost",system-ui,sans-serif;font-weight:500;
+  padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:16px;
+}
+.pp-block ul{list-style:none;padding:0;display:grid;gap:11px}
+.pp-block li{
+  font-size:13.5px;line-height:1.65;color:var(--ink-2);font-weight:300;
+  padding-left:17px;position:relative;
+}
+.pp-block li::before{
+  content:"";position:absolute;left:0;top:9px;width:5px;height:5px;
+  border:1px solid var(--accent-soft);transform:rotate(45deg);
+}
+.pp-block li b{color:var(--ink);font-weight:500}
+.pp-block dl{display:grid;grid-template-columns:auto 1fr;gap:11px 18px;margin:0}
+.pp-block dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-top:2px}
+.pp-block dd{margin:0;font-size:13.5px;color:var(--ink-2);font-weight:300;line-height:1.55}
+
 /* ============ MOBILE ============ */
 @media(max-width:860px){
-  .hero{grid-template-columns:1fr;gap:30px;padding-block:36px 34px}
-  .hero-art{aspect-ratio:16/11;order:-1}
+  .hero{min-height:470px}
+  .hero-inner{padding:56px 20px}
   .strip{grid-template-columns:1fr}
 }
 @media(max-width:700px){
@@ -370,8 +522,10 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   .wrap{padding-inline:16px}
   .announce{font-size:9.5px;letter-spacing:.1em;padding:8px 14px}
 
-  .hero h1{margin-block:14px 16px}
-  .hero p{font-size:14.5px}
+  .hero{min-height:440px}
+  .hero-inner{padding:48px 18px}
+  .hero h1{margin-block:12px 14px}
+  .hero p{font-size:14.5px;max-width:34ch}
   .hero-cta{gap:9px;margin-top:22px}
   .hero-cta .btn{flex:1;min-width:0;padding:14px 12px;font-size:10px;letter-spacing:.12em}
   .hero-tag{font-size:9px;padding:10px 14px}
@@ -387,10 +541,7 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   .card-name{font-size:18px}
   .card-desc{font-size:11.5px;line-height:1.45}
   .card-price{font-size:13px}
-  .card-foot{flex-direction:column;align-items:stretch;gap:6px}
   .add-btn{width:100%;padding:12px}
-  .size-select{width:100%;font-size:12px;padding:11px 10px}
-  .unstitched-note{font-size:9px;padding:9px 6px}
 
   .strip div{padding:22px 18px}
   .info{gap:28px}
@@ -403,14 +554,44 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 
   .mobile-bar.show{display:flex}
   body.has-bar{padding-bottom:64px}
+
+  /* product page stacks on phones */
+  .pp-head{padding:10px 16px}
+  .pp-head .wordmark{display:none}
+  .pp-head .cart-btn{margin-left:auto}
+  .pp-inner{padding:20px 16px 60px}
+  .pp-top{grid-template-columns:1fr;gap:24px}
+  .pp-gal{position:static;gap:8px}
+  .pp-thumbs button{width:54px}
+  .pp-title{font-size:30px}
+  .pp-price{font-size:20px}
+  .pp-detail{margin-top:40px;grid-template-columns:1fr;gap:32px}
+  .pp-block li{font-size:13px}
+  .pp-block dl{grid-template-columns:1fr;gap:3px 0}
+  .pp-block dl dd{margin-bottom:11px}
 }
+/* always two per row on phones — just tighten the type on narrow screens */
 @media(max-width:380px){
-  .grid{grid-template-columns:1fr}
-  .card-name{font-size:20px}
+  .grid{grid-template-columns:1fr 1fr;gap:24px 10px}
+  .card-name{font-size:17px}
+  .card-desc{font-size:11px}
+  .card-price{font-size:12.5px}
+  .card-flag{font-size:8.5px;padding:4px 6px;letter-spacing:.1em}
+  .add-btn{font-size:10px;padding:11px 8px;letter-spacing:.1em}
+  /* header has to fit too */
+  .wrap{padding-inline:14px}
+  .head-inner{padding:10px 14px;gap:6px}
+  .wordmark{font-size:18px;letter-spacing:.11em}
+  .wordmark small{font-size:6.5px;letter-spacing:.24em}
+  .icon-btn{width:32px;height:32px}
+  .cart-btn{min-height:34px;padding:0 10px;font-size:9.5px;gap:5px}
+  .announce{font-size:8.5px;letter-spacing:.08em}
 }
 
 @media(prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  html{scroll-behavior:auto}
+  .pp,.pp .pp-top,.pp .pp-detail{transform:none!important}
 }
 </style>
 </head>
@@ -422,7 +603,7 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   <div class="head-inner">
     <nav class="nav">
       <a href="#shop">Shop</a>
-      <a href="#fabric">Fabric &amp; Size</a>
+      <a href="#fabric">Fabric &amp; Delivery</a>
       <a href="#delivery">Delivery</a>
     </nav>
     <div class="wordmark">Shiza Dressco<small>Karachi</small></div>
@@ -438,17 +619,8 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 </header>
 
 <main>
-  <section class="wrap hero">
-    <div>
-      <div class="eyebrow">Autumn / Winter 2026</div>
-      <h1>Quietly <em>beautiful</em> clothing, made to be worn every day.</h1>
-      <p>Hand-picked lawn, cambric and chiffon — cut for real life in Pakistani weather. Order on the site, pay cash when your parcel reaches you.</p>
-      <div class="hero-cta">
-        <a class="btn btn-primary" href="#shop">Shop collection</a>
-        <a class="btn btn-ghost" href="#delivery">Delivery info</a>
-      </div>
-    </div>
-    <div class="hero-art">
+  <section class="hero" id="hero">
+    <div class="hero-media">
       <svg viewBox="0 0 400 500" aria-hidden="true" preserveAspectRatio="xMidYMid slice">
         <defs>
           <pattern id="motif" width="56" height="56" patternUnits="userSpaceOnUse">
@@ -465,15 +637,34 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
           <path d="M122 336 H278"/>
         </g>
       </svg>
-      <div class="hero-tag">Lawn · Cambric · Chiffon</div>
+      <img class="hero-photo" id="heroA" alt="" aria-hidden="true">
+      <img class="hero-photo" id="heroB" alt="" aria-hidden="true">
+      <video class="hero-video" id="heroVid" muted loop playsinline
+             preload="metadata" disablepictureinpicture aria-hidden="true"></video>
     </div>
+    <div class="hero-scrim"></div>
+
+    <div class="hero-inner">
+      <div class="eyebrow">Autumn / Winter 2026</div>
+      <h1>Original brand lawn, <em>honestly</em> priced.</h1>
+      <p>Three-piece unstitched printed lawn, picked from original brand stock and sold at one flat price. Order on the site, pay cash when your parcel reaches you.</p>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="#shop">Shop collection</a>
+        <a class="btn btn-ghost" href="#delivery">Delivery info</a>
+      </div>
+    </div>
+
+    <div class="hero-tag" id="heroTag">Lawn · Cambric · Chiffon</div>
+    <button class="hero-toggle" id="heroToggle" aria-label="Pause video">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>
+    </button>
   </section>
 
   <section class="wrap section" id="shop">
     <div class="section-head">
       <div>
         <div class="eyebrow">The collection</div>
-        <h2>Eight pieces, in stock now</h2>
+        <h2 id="shopHeading">In stock now</h2>
       </div>
       <div class="filters" id="filters">
         <button class="filter" data-cat="all" aria-pressed="true">All</button>
@@ -506,30 +697,23 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
     <div class="section-head">
       <div>
         <div class="eyebrow">Before you order</div>
-        <h2>Fabric, sizing &amp; delivery</h2>
+        <h2>Fabric &amp; delivery</h2>
       </div>
     </div>
     <div class="info">
       <div>
-        <h3>Size guide</h3>
-        <p style="font-size:12.5px;color:var(--ink-2);font-weight:300;margin-bottom:14px">Measurements in inches, taken flat across the garment. Between sizes? Take the larger — our kurtas are cut relaxed.</p>
-        <div class="table-scroll">
-          <table class="size-table">
-            <thead><tr><th>Size</th><th>Bust</th><th>Waist</th><th>Length</th></tr></thead>
-            <tbody>
-              <tr><td>XS</td><td>34</td><td>30</td><td>40</td></tr>
-              <tr><td>S</td><td>36</td><td>32</td><td>41</td></tr>
-              <tr><td>M</td><td>38</td><td>34</td><td>42</td></tr>
-              <tr><td>L</td><td>40</td><td>36</td><td>43</td></tr>
-              <tr><td>XL</td><td>42</td><td>38</td><td>43</td></tr>
-            </tbody>
-          </table>
-        </div>
+        <h3>About the fabric</h3>
+        <dl>
+          <dt>Unstitched</dt><dd>Every suit is sold as fabric — shirt, dupatta and trouser pieces, with no stitching included.</dd>
+          <dt>Lengths</dt><dd>Message us on WhatsApp for the exact metres on any design before you order.</dd>
+          <dt>Stitching</dt><dd>Take it to your own tailor and choose your neckline, sleeve length and fit.</dd>
+          <dt>Origin</dt><dd>Picked from original brand stock — the brand is shown on each product page.</dd>
+        </dl>
       </div>
       <div id="delivery">
         <h3>Delivery &amp; payment</h3>
         <dl>
-          <dt>Charges</dt><dd>Rs 250 flat nationwide. Free on orders above Rs 5,000.</dd>
+          <dt>Charges</dt><dd>Rs 200 flat nationwide. Free on orders above Rs 5,000.</dd>
           <dt>Courier</dt><dd>Sent by TCS or Leopards with a tracking number shared on WhatsApp.</dd>
           <dt>Payment</dt><dd>Cash on delivery, Easypaisa, JazzCash, or direct bank transfer.</dd>
           <dt>Advance</dt><dd>Orders above Rs 15,000 need 50% advance before dispatch.</dd>
@@ -569,6 +753,29 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   <span id="mbTotal">Rs 0</span>
 </button>
 
+<!-- ============ PRODUCT PAGE (filled in by script — nothing to edit here) ============ -->
+<div class="pp" id="pp" role="dialog" aria-modal="true" aria-label="Product details">
+  <div class="pp-head">
+    <button class="pp-back" id="ppBack">
+      <svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg> Back to shop
+    </button>
+    <div class="wordmark">Shiza Dressco</div>
+    <button class="cart-btn" id="ppCart" aria-haspopup="dialog">
+      Bag <span class="cart-count" id="ppCartCount">0</span>
+    </button>
+  </div>
+  <div class="pp-body" id="ppBody"></div>
+</div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Product photos">
+  <div class="lb-cap" id="lbCap"></div>
+  <button class="lb-close" id="lbClose" aria-label="Close">&times;</button>
+  <button class="lb-nav prev" id="lbPrev" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
+  <img id="lbImg" src="" alt="">
+  <button class="lb-nav next" id="lbNext" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>
+  <div class="lb-count" id="lbCount"></div>
+</div>
+
 <div class="scrim" id="scrim"></div>
 
 <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawerTitle">
@@ -587,47 +794,431 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
 const CONFIG = {
   brand:        "Shiza Dressco",
   city:         "Karachi",
-  whatsapp:     "923137410522",   // your number: country code first, no + and no spaces
+  whatsapp:     "923137410522",   // country code first, no + and no spaces
   instagram:    "@shizadressco",
   instagramUrl: "https://instagram.com/shizadressco",
-  shippingFlat: 250,
-  freeOver:     5000
+  shippingFlat: 200,
+  freeOver:     5000,
+  heroTag:      "Unstitched · 3 Piece · Printed lawn"   // the small strip under the banner
 };
 
 /* ---------- catalogue ---------- */
+/* ============================================================
+   THE CATALOGUE — 13 unstitched 3-piece lawn suits
+   ------------------------------------------------------------
+   id        the photo filename as well:
+             id:"pistachio-vine"  ->  images/pistachio-vine.jpeg
+                                      images/pistachio-vine-2.jpeg
+             All lowercase, hyphens instead of spaces, all .jpeg
+
+   price     plain number, no commas and no "Rs".
+   flag      the small chip on the photo.
+   desc      the one line under the name in the grid.
+   detail    everything on the product page. Leave a field empty
+             and that section simply will not appear.
+   ============================================================ */
 const PRODUCTS = [
-  { id:"gulnar", name:"Gulnar", cat:"unstitched", price:6890, shape:"stack",
-    tone:["#E8D6D0","#C9A29A"], flag:"3-piece",
-    desc:"Embroidered lawn shirt, printed dupatta and dyed cambric trouser.",
-    sizes:null, unstitchedNote:"3.0m shirt · 2.5m dupatta · 2.5m trouser" },
-  { id:"meher", name:"Meher", cat:"pret", price:4290, shape:"kurta",
-    tone:["#DDE2DA","#A9B5A4"], flag:"Ready to wear",
-    desc:"Cotton net kurta with a scalloped hem and full lining.",
-    sizes:["XS","S","M","L","XL"] },
-  { id:"sana", name:"Sana", cat:"unstitched", price:5450, shape:"stack",
-    tone:["#E3DCE8","#B0A2BF"], flag:"2-piece",
-    desc:"Digital-print cambric shirt with a matching dyed trouser length.",
-    sizes:null, unstitchedNote:"3.0m shirt · 2.5m trouser" },
-  { id:"noor", name:"Noor", cat:"pret", price:7900, shape:"kurta",
-    tone:["#F0E7DA","#CBB894"], flag:"Hand-worked",
-    desc:"Chikankari kurta on soft mul cotton, hand-embroidered in Lucknow stitch.",
-    sizes:["S","M","L","XL"] },
-  { id:"zara", name:"Zara", cat:"pret", price:3290, shape:"kurta",
-    tone:["#E9DDD6","#C4A08E"], flag:"Everyday",
-    desc:"Printed viscose shirt with side slits — the one you will reach for daily.",
-    sizes:["XS","S","M","L","XL"] },
-  { id:"mahi", name:"Mahi", cat:"dupatta", price:2150, shape:"dupatta",
-    tone:["#E7DAD6","#B98E93"], flag:"Dupatta only",
-    desc:"Silk-blend dupatta, 2.5 metres, with a hand-rolled picot edge.",
-    sizes:null, unstitchedNote:"2.5m · one size" },
-  { id:"rania", name:"Rania", cat:"unstitched", price:12500, shape:"stack",
-    tone:["#E4D7DC","#A8757F"], flag:"Formal · 3-piece",
-    desc:"Embroidered chiffon with a sequinned border and raw-silk trouser.",
-    sizes:null, unstitchedNote:"3.0m chiffon · 2.5m dupatta · 2.5m raw silk" },
-  { id:"ayat", name:"Ayat", cat:"pret", price:5990, shape:"set",
-    tone:["#E0DBD2","#A79B88"], flag:"Winter · stitched",
-    desc:"Khaddar kurta and trouser set, warm enough for a Karachi January.",
-    sizes:["S","M","L","XL"] }
+  { id:"pistachio-vine", name:"Pistachio Vine", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#DCE4C6", "#2C3A5E"], flag:"3Pc · Unstitched",
+    desc:"Pistachio lawn with a navy leaf print and a flowing printed dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Digital Printed Lawn Suit",
+      intro:"A soft pistachio ground carries deep navy leaf sprigs across the shirt, while the dupatta turns the same motif into long brush-stroke waves. Light, breathable and easy to wear through a Karachi afternoon.",
+      features:[
+        "Digital print: crisp navy foliage on a pistachio-green ground, printed edge to edge.",
+        "Contrast dupatta: the same leaf drawn large as flowing strokes, with a patterned navy border.",
+        "Everyday comfort: lightweight lawn with a relaxed, easy fit.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed lawn dupatta with a navy patterned border."],
+        ["Trouser", "Dyed plain pistachio trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Pistachio green, navy blue"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"blush-bloom", name:"Blush Bloom", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F2D8DA", "#8E7CA6"], flag:"3Pc · Unstitched",
+    desc:"Blush pink lawn scattered with mauve and plum blooms.",
+    detail:{
+      tagline:"3 Piece Unstitched Digital Printed Lawn Suit",
+      intro:"Watercolour flowers in mauve, plum and dusty blue drift across a blush-pink ground. The dupatta gathers the same blooms into a deeper bordered panel — soft enough for daytime, dressy enough for a lunch.",
+      features:[
+        "Painterly floral: layered mauve, plum and soft blue blooms in high-definition digital print.",
+        "Bordered dupatta: a richer floral panel along the fall, finished with a fine woven edge.",
+        "Soft palette: blush base that pairs easily with gold or pearl jewellery.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with a decorative bordered fall."],
+        ["Trouser", "Dyed plain blush trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Blush pink, mauve, plum"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"amber-fern", name:"Amber Fern", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#E8C66A", "#1E5E5A"], flag:"3Pc · Unstitched",
+    desc:"Mustard lawn under a canopy of green leaves, with a deep teal dupatta.",
+    detail:{
+      tagline:"Regalia Vol-17 · 3 Piece Unstitched Digital Printed Lawn",
+      intro:"Green and teal foliage spreads over a warm mustard ground, and the dupatta flips the palette — deep teal with golden blooms. A strong, confident colour pairing that photographs beautifully.",
+      features:[
+        "Digital print: dense leaf canopy in green and teal over a rich mustard base.",
+        "Reverse-palette dupatta: deep teal ground with ochre flowers and large circular motifs.",
+        "Premium lawn: smooth, breathable weave with good colour depth.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Digital printed dupatta in deep teal."],
+        ["Trouser", "Dyed plain mustard trouser."]
+      ],
+      specs:[
+        ["Brand", "Regalia Textiles"],
+        ["Design no.", "R-17-09"],
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Mustard, teal, leaf green"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"pine-ember", name:"Pine Ember", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#CFD8CC", "#214038"], flag:"3Pc · Unstitched",
+    desc:"Bottle-green lawn with rust and cream leaves, and a striped chiffon dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Lawn Suit",
+      intro:"Rust, cream and grey leaves tumble across a deep bottle-green shirt. The dupatta runs diagonal green-and-white stripes with a leaf-printed border — quiet, warm and well suited to cooler evenings.",
+      features:[
+        "Autumn leaf print: rust, cream and smoke-grey leaves on a deep pine ground.",
+        "Striped dupatta: diagonal green and white stripes finished with a printed leaf border.",
+        "Deep tones: a darker palette that carries into winter.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn — front, back and sleeves."],
+        ["Dupatta", "Striped printed dupatta with a leaf border."],
+        ["Trouser", "Dyed plain bottle-green trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium printed lawn"],
+        ["Colour", "Bottle green, rust, cream"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"coral-ginkgo", name:"Coral Ginkgo", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F5CDC2", "#C2605A"], flag:"3Pc · Unstitched",
+    desc:"Coral lawn with grey-violet florals and a ginkgo-print dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Digital Printed Lawn Suit",
+      intro:"Fine grey-violet flowers climb a warm coral ground. The dupatta carries a larger composition — tall stems, a striped panel and a cream ginkgo fan at the fall. Soft, modern and easy to style.",
+      features:[
+        "Fine floral: delicate grey and violet flowers over a warm coral base.",
+        "Statement dupatta: tall printed stems with a striped panel and cream ginkgo motif at the fall.",
+        "Breathable lawn: light enough for daytime wear.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Digital printed dupatta with a bordered fall."],
+        ["Trouser", "Dyed plain coral trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Coral, grey, violet"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"autumn-ivory", name:"Autumn Ivory", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F4E8D6", "#C2642E"], flag:"3Pc · Unstitched",
+    desc:"Ivory lawn with rust maple leaves and a sunset-toned dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Digital Printed Lawn Suit",
+      intro:"Maple leaves in rust, maroon and amber scatter over an ivory ground, with fine striped bands at the sleeves. The dupatta shifts into a burnt-orange wash with a painted landscape at the fall.",
+      features:[
+        "Autumn print: rust and maroon maple leaves on a clean ivory ground.",
+        "Painted dupatta: burnt-orange ombré with a soft landscape composition at the fall.",
+        "Striped sleeve detail: fine tonal bands at the cuffs.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Digital printed ombré dupatta."],
+        ["Trouser", "Dyed plain ivory trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Ivory, rust, amber"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"fuchsia-pebble", name:"Fuchsia Pebble", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F9D5E3", "#D81E7A"], flag:"3Pc · Unstitched",
+    desc:"Bright fuchsia lawn with a white pebble print and a bordered dupatta.",
+    detail:{
+      tagline:"Regalia Vol-20 · 3 Piece Unstitched Digital Printed Lawn",
+      intro:"A bold abstract pebble print in white over hot fuchsia, cut with a mandarin collar and a slim placket. The dupatta carries the same print with a geometric border, finished with a plain white trouser.",
+      features:[
+        "Abstract print: large white pebble shapes on a strong fuchsia ground.",
+        "Neckline: mandarin collar with a slit placket and fine detailing.",
+        "Bordered dupatta: geometric panel running the full length of the fall.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Digital printed lawn dupatta with a geometric border."],
+        ["Trouser", "Plain white lawn trouser."]
+      ],
+      specs:[
+        ["Brand", "Regalia Textiles"],
+        ["Volume", "Vol-20"],
+        ["Fabric", "Premium digital printed lawn"],
+        ["Colour", "Fuchsia pink, white"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"mint-hibiscus", name:"Mint Hibiscus", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#D4EAE6", "#2E5E8E"], flag:"3Pc · Unstitched",
+    desc:"Mint lawn with blue and cream hibiscus, and a striped chiffon dupatta.",
+    detail:{
+      tagline:"Salina Vol-20 · 3 Piece Unstitched Digital Printed Lawn",
+      intro:"Large cream and blue hibiscus blooms open across a pale mint ground. The dupatta runs clean blue and white stripes over a floral base — fresh, cool and easy in warm weather.",
+      features:[
+        "Large floral: cream and blue hibiscus with deep green foliage on pale mint.",
+        "Striped dupatta: blue and white banding over a soft floral ground.",
+        "Cool palette: light mint base, comfortable in heat.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Digital printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed striped dupatta."],
+        ["Trouser", "Dyed plain mint trouser."]
+      ],
+      specs:[
+        ["Brand", "Salina"],
+        ["Volume", "Vol-20"],
+        ["Fabric", "Digital printed lawn"],
+        ["Colour", "Mint, blue, cream"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"scarlet-batik", name:"Scarlet Batik", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F7D8D0", "#D62B23"], flag:"3Pc · Unstitched",
+    desc:"Scarlet lawn with a white batik print and an ornate bordered dupatta.",
+    detail:{
+      tagline:"Élan Lawn · 3 Piece Unstitched Luxury Printed Lawn",
+      intro:"A bold batik-style print in white over true scarlet, paired with a dupatta carrying traditional floral bands and a wide ornamental border. Striking, festive and hard to miss.",
+      features:[
+        "Batik-style print: flowing white forms on a strong scarlet ground.",
+        "Ornate dupatta: rows of traditional floral motifs with a wide decorative border.",
+        "Luxury lawn: a finer, denser weave with excellent colour hold.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with an ornamental border."],
+        ["Trouser", "Dyed plain scarlet trouser."]
+      ],
+      specs:[
+        ["Brand", "Élan Lawn"],
+        ["Design no.", "0678"],
+        ["Fabric", "Luxury printed lawn"],
+        ["Colour", "Scarlet red, white"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"honey-blossom", name:"Honey Blossom", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#EFDCAC", "#B4832E"], flag:"3Pc · Unstitched",
+    desc:"Honey-gold lawn with cream blossoms and a striped butterfly dupatta.",
+    detail:{
+      tagline:"Élan Lawn · 3 Piece Unstitched Printed Lawn Suit",
+      intro:"Cream and maroon blossoms open across a warm honey-gold ground. The dupatta brings maroon stripes, a zigzag band and a large butterfly motif — warm, golden and good for daylight.",
+      features:[
+        "Blossom print: cream flowers with maroon leaves on a honey-gold base.",
+        "Striped dupatta: maroon banding with a zigzag detail and a large butterfly motif.",
+        "Warm palette: golden tones that suit both day and evening.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed striped dupatta."],
+        ["Trouser", "Dyed plain honey-gold trouser."]
+      ],
+      specs:[
+        ["Brand", "Élan Lawn"],
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Honey gold, cream, maroon"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"rose-paisley", name:"Rose Paisley", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#F6DCD8", "#D8838A"], flag:"3Pc · Unstitched",
+    desc:"Soft rose lawn with a cream paisley block print.",
+    detail:{
+      tagline:"Nishat Linen · 3 Piece Unstitched Printed Suit",
+      intro:"Cream paisleys and medallion florals press into a soft rose ground, with wide banded borders through the dupatta. A classic block-print feel, quiet and well mannered.",
+      features:[
+        "Block-print feel: cream paisley and medallion motifs on soft rose.",
+        "Banded dupatta: wide paisley borders running the length of the fall.",
+        "Tonal palette: single-colour family, easy to accessorise.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with wide paisley borders."],
+        ["Trouser", "Dyed plain rose trouser."]
+      ],
+      specs:[
+        ["Brand", "Nishat Linen"],
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Rose pink, cream"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"indigo-block", name:"Indigo Block", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#D4E0E8", "#3A6E96"], flag:"3Pc · Unstitched",
+    desc:"Denim-blue lawn with ochre block-print flowers and a striped dupatta.",
+    detail:{
+      tagline:"Nishat Linen · 3 Piece Unstitched Printed Suit",
+      intro:"Ochre and cream flowers stamped across a denim-blue ground in a traditional block-print layout. The dupatta brings blue and green stripes with a patterned band at the border.",
+      features:[
+        "Block-print florals: ochre and cream blooms on a denim-blue ground.",
+        "Striped dupatta: blue and green banding with a printed border detail.",
+        "Versatile blue: works with both silver and gold.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed striped dupatta."],
+        ["Trouser", "Dyed plain blue trouser."]
+      ],
+      specs:[
+        ["Brand", "Nishat Linen"],
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Denim blue, ochre, green"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"teal-swirl", name:"Teal Swirl", cat:"unstitched", price:2200, shape:"stack",
+    tone:["#C4E0DA", "#15485C"], flag:"3Pc · Unstitched",
+    desc:"Sea-green lawn with a navy swirl print and an ombré dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Lawn Suit",
+      intro:"A marbled navy swirl runs over a sea-green ground, and the dupatta fades from green to deep teal with a fine pleated effect through the centre. Bold pattern, calm colour.",
+      features:[
+        "Marbled print: flowing navy swirls over a rich sea-green base.",
+        "Ombré dupatta: green fading into deep teal with a fine linear effect.",
+        "Full coverage: the print runs through sleeves and side panels.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn — front, back and sleeves."],
+        ["Dupatta", "Printed ombré dupatta."],
+        ["Trouser", "Dyed plain sea-green trouser."]
+      ],
+      specs:[
+        ["Fabric", "Premium printed lawn"],
+        ["Colour", "Sea green, navy blue"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } }
 ];
 
 /* ---------- theme ---------- */
@@ -697,22 +1288,40 @@ const esc = s => s.replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c
 
 let cart = [], step = "bag", lastOrder = null, activeCat = "all";
 
+/* a price of 0 shows "Price on request" instead of "Rs 0" */
+const priceLabel = p => p.price > 0 ? rs(p.price) : "Price on request";
+
+/* the filter buttons build themselves — the bar hides when there is only one category */
+const CAT_LABELS = { lawn:"Printed lawn", formal:"Formal", winter:"Winter", dupatta:"Dupatta" };
+function buildFilters(){
+  const cats = [...new Set(PRODUCTS.map(p => p.cat))];
+  const bar = byId("filters");
+  if (cats.length < 2){ bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.innerHTML = [["all","All"], ...cats.map(c => [c, CAT_LABELS[c] || c])]
+    .map(([c, label]) =>
+      `<button class="filter" data-cat="${c}" aria-pressed="${c === activeCat}">${label}</button>`).join("");
+}
+
 function renderGrid(){
   const list = PRODUCTS.filter(p => activeCat === "all" || p.cat === activeCat);
   byId("grid").innerHTML = list.map((p, i) => `
     <article class="card">
-      <div class="card-art">${artwork(p, i)}<img src="images/${p.id}.jpg" alt="${p.name}" loading="lazy" onerror="this.dataset.i=(+this.dataset.i||0)+1;var e=['jpeg','png','webp','JPG','JPEG'][this.dataset.i-1];if(e){this.src='images/${p.id}.'+e}else{this.remove()}"><span class="card-flag">${p.flag}</span></div>
+      <div class="card-art${(p.photos||[]).length ? ' has-photo' : ''}" data-gal="${p.id}" data-idx="0" data-open="${p.id}" role="button" tabindex="0" aria-label="Open ${p.name}">
+        ${artwork(p, i)}
+        ${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="${p.name}" loading="lazy">` : ``}
+        ${(p.photos||[]).length > 1 ? `
+          <button class="gal-btn prev" data-step="-1" aria-label="Previous photo of ${p.name}"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
+          <button class="gal-btn next" data-step="1" aria-label="Next photo of ${p.name}"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>
+          <span class="gal-dots">${p.photos.map((_, n) => `<button data-dot="${n}" aria-current="${n === 0}" aria-label="Photo ${n+1}"></button>`).join("")}</span>` : ``}
+        <span class="card-flag">${p.flag}</span>
+      </div>
       <div>
-        <div class="card-name">${p.name}</div>
+        <div class="card-name" data-open="${p.id}" role="button" tabindex="0" style="cursor:pointer">${p.name}</div>
         <p class="card-desc">${p.desc}</p>
-        <div class="card-price">${rs(p.price)}</div>
+        <div class="card-price">${priceLabel(p)}</div>
       </div>
       <div class="card-foot">
-        ${p.sizes
-          ? `<select class="size-select" id="sz-${p.id}" aria-label="Size for ${p.name}">
-               ${p.sizes.map(s => `<option value="${s}">${s}</option>`).join("")}
-             </select>`
-          : `<span class="unstitched-note">${p.unstitchedNote}</span>`}
         <button class="add-btn" data-add="${p.id}">Add to bag</button>
       </div>
     </article>`).join("");
@@ -724,10 +1333,8 @@ const total = () => subtotal() + shipping();
 const itemCount = () => cart.reduce((n, it) => n + it.qty, 0);
 
 function addToCart(id){
-  const p = find(id);
-  const size = p.sizes ? byId("sz-" + id).value : "One size";
-  const hit = cart.find(it => it.id === id && it.size === size);
-  if (hit) hit.qty++; else cart.push({ id, size, qty:1 });
+  const hit = cart.find(it => it.id === id);
+  if (hit) hit.qty++; else cart.push({ id, qty:1 });
   step = "bag"; syncChrome(); renderDrawer();
 }
 function changeQty(idx, delta){
@@ -738,6 +1345,7 @@ function changeQty(idx, delta){
 function syncChrome(){
   const n = itemCount();
   byId("cartCount").textContent = n;
+  byId("ppCartCount").textContent = n;
   const bar = byId("mobileBar");
   bar.hidden = n === 0;
   document.body.classList.toggle("has-bar", n > 0);
@@ -822,10 +1430,9 @@ function renderDrawer(){
       ${cart.map((it, i) => {
         const p = find(it.id);
         return `<div class="line-item">
-          <div class="li-art">${artwork(p, "c" + i)}<img src="images/${p.id}.jpg" alt="" onerror="this.dataset.i=(+this.dataset.i||0)+1;var e=['jpeg','png','webp','JPG','JPEG'][this.dataset.i-1];if(e){this.src='images/${p.id}.'+e}else{this.remove()}"></div>
+          <div class="li-art">${artwork(p, "c" + i)}${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="">` : ``}</div>
           <div class="li-main">
             <div class="li-name">${p.name}</div>
-            <div class="li-meta">${it.size === "One size" ? p.unstitchedNote : "Size " + it.size}</div>
             <div class="li-row">
               <div class="qty">
                 <button data-q="${i}" data-d="-1" aria-label="Reduce quantity">−</button>
@@ -927,7 +1534,7 @@ function placeOrder(){
   const ship = shipping();
   const lines = cart.map(it => {
     const p = find(it.id);
-    return `${it.qty} × ${p.name} (${it.size === "One size" ? "unstitched" : "size " + it.size}) — ${rs(p.price * it.qty)}`;
+    return `${it.qty} × ${p.name} — ${rs(p.price * it.qty)}`;
   }).join("\n");
 
   const text =
@@ -986,6 +1593,9 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", pai
   document.title = CONFIG.brand;
   byId("announceBar").textContent =
     `Free delivery on orders above ${rs(CONFIG.freeOver)} · Cash on delivery nationwide`;
+  if (CONFIG.heroTag) byId("heroTag").textContent = CONFIG.heroTag;
+  const n = PRODUCTS.length;                       // the count updates itself
+  byId("shopHeading").textContent = `${n} piece${n === 1 ? "" : "s"}, in stock now`;
   const local = "0" + CONFIG.whatsapp.slice(2);
   byId("footPhone").innerHTML =
     `<a href="https://wa.me/${CONFIG.whatsapp}" target="_blank" rel="noopener">WhatsApp · ${local.replace(/^(\d{4})(\d+)$/, "$1 $2")}</a>`;
@@ -993,9 +1603,437 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", pai
     `<a href="${CONFIG.instagramUrl}" target="_blank" rel="noopener">Instagram · ${CONFIG.instagram}</a>`;
 })();
 
+/* ---------- product photos ----------
+   images/<id>.jpeg is the first photo; images/<id>-2.jpeg, -3.jpeg … are the rest.
+   .jpg, .png and .webp work too. Nothing to edit here — just add the files.  */
+const PHOTO_EXTS = ["jpg","jpeg","png","webp","JPG","JPEG"];
+const MAX_PHOTOS = 8;
+
+function tryImage(src){
+  return new Promise(resolve => {
+    const im = new Image();
+    im.onload = () => resolve(src);
+    im.onerror = () => resolve(null);
+    im.src = src;
+  });
+}
+async function findPhoto(base, preferred){
+  const order = preferred ? [preferred, ...PHOTO_EXTS.filter(e => e !== preferred)] : PHOTO_EXTS;
+  for (const ext of order){
+    const hit = await tryImage(`images/${base}.${ext}`);
+    if (hit) return { url: hit, ext };
+  }
+  return null;
+}
+async function loadPhotos(){
+  await Promise.all(PRODUCTS.map(async p => {
+    p.photos = [];
+    const first = await findPhoto(p.id);
+    if (!first) return;
+    p.photos.push(first.url);
+    for (let n = 2; n <= MAX_PHOTOS; n++){
+      const more = await findPhoto(`${p.id}-${n}`, first.ext);
+      if (!more) break;
+      p.photos.push(more.url);
+    }
+  }));
+  renderGrid();
+}
+
+/* ============================================================
+   HERO — video or photo
+   images/hero.mp4   → plays in the banner, muted and looping.
+   images/hero.jpeg  → shown until the video loads, and used as the
+                       banner itself if there is no video.
+   hero-2.jpeg, hero-3.jpeg → the photos slowly cross-fade.
+   With neither, the drawing stays — the banner is never blank.
+   ============================================================ */
+const VIDEO_EXTS = ["mp4", "webm", "MP4", "MOV", "mov"];
+
+function tryVideo(src){
+  return new Promise(resolve => {
+    const v = document.createElement("video");
+    v.preload = "metadata"; v.muted = true;
+    v.onloadedmetadata = () => resolve(src);
+    v.onerror = () => resolve(null);
+    v.src = src;
+  });
+}
+async function findVideo(base){
+  for (const ext of VIDEO_EXTS){
+    const hit = await tryVideo(`images/${base}.${ext}`);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+async function loadHero(){
+  const hero = byId("hero");
+  const A = byId("heroA"), B = byId("heroB");
+
+  /* 1 — photos: they act as the poster, and as the banner if there is no video */
+  const first = await findPhoto("hero");
+  const shots = [];
+  if (first){
+    shots.push(first.url);
+    for (let n = 2; n <= 6; n++){
+      const more = await findPhoto(`hero-${n}`, first.ext);
+      if (!more) break;
+      shots.push(more.url);
+    }
+    A.src = shots[0];
+    A.classList.add("on");
+    hero.classList.add("has-media");
+  }
+
+  /* 2 — video */
+  const vidSrc = await findVideo("hero");
+  if (!vidSrc){
+    /* no video → let the photos rotate */
+    if (shots.length > 1){
+      let i = 0, front = A, back = B;
+      setInterval(() => {
+        i = (i + 1) % shots.length;
+        back.src = shots[i];
+        back.classList.add("on");
+        front.classList.remove("on");
+        [front, back] = [back, front];
+      }, 6000);
+    }
+    return;
+  }
+
+  const v = byId("heroVid");
+  if (shots.length) v.poster = shots[0];
+  v.src = vidSrc;
+  hero.classList.add("has-media", "has-video");
+
+  /* save data: if the visitor has data saver on, or asked for reduced motion,
+     the video does not autoplay — they just see the poster */
+  const saveData = navigator.connection && navigator.connection.saveData;
+  const noMotionNow = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const btn = byId("heroToggle");
+  const PAUSE = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg>`;
+  const PLAY  = `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>`;
+  const paint = () => {
+    const playing = !v.paused;
+    btn.innerHTML = playing ? PAUSE : PLAY;
+    btn.setAttribute("aria-label", playing ? "Pause video" : "Play video");
+  };
+  btn.onclick = () => { v.paused ? v.play() : v.pause(); paint(); };
+
+  v.addEventListener("loadeddata", () => v.classList.add("on"), { once:true });
+
+  if (saveData || noMotionNow){ v.classList.add("on"); paint(); return; }
+  v.play().then(paint).catch(paint);        // if autoplay is blocked, the poster stays
+
+  /* pause the video when it scrolls out of view — saves battery and data */
+  if ("IntersectionObserver" in window){
+    new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (e.isIntersecting && btn.getAttribute("aria-label") === "Pause video") v.play().catch(() => {});
+        else if (!e.isIntersecting) v.pause();
+      });
+    }, { threshold:0.1 }).observe(hero);
+  }
+}
+
+/* ============================================================
+   PRODUCT PAGE
+   Clicking a card opens a full-screen product page. No extra files —
+   it all lives in this one index.html, and every product gets its own
+   shareable link (.../#pistachio-vine).
+   ============================================================ */
+let ppId = null, ppIdx = 0;
+
+const localPhone = "0" + CONFIG.whatsapp.slice(2);
+const prettyPhone = localPhone.replace(/^(\d{4})(\d+)$/, "$1 $2");
+
+/* splits "Label: rest of the line" into a bold label plus text */
+function splitLabel(line){
+  const m = line.match(/^([^:—–]{2,42})\s*[:—–]\s*(.+)$/);
+  return m ? `<b>${esc(m[1])}</b> — ${esc(m[2])}` : esc(line);
+}
+function ppBlock(title, inner){
+  return inner ? `<section class="pp-block"><h3>${title}</h3>${inner}</section>` : "";
+}
+function ppList(arr, withLabels){
+  if (!arr || !arr.length) return "";
+  return `<ul>${arr.map(x => `<li>${withLabels ? splitLabel(x) : esc(x)}</li>`).join("")}</ul>`;
+}
+function ppPairs(arr, asList){
+  if (!arr || !arr.length) return "";
+  if (asList) return `<ul>${arr.map(([k, v]) => `<li><b>${esc(k)}</b> — ${esc(v)}</li>`).join("")}</ul>`;
+  return `<dl>${arr.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("")}</dl>`;
+}
+
+function ppStageHTML(p){
+  const has = (p.photos || []).length;
+  return `
+    <div class="pp-stage" id="ppStage">
+      ${has ? `<img src="${p.photos[0]}" alt="${esc(p.name)}" id="ppImg" data-ppzoom>` : artwork(p, 0)}
+      ${has > 1 ? `
+        <button class="gal-btn prev" data-ppstep="-1" aria-label="Previous photo"><svg viewBox="0 0 24 24"><path d="M15 5 L8 12 L15 19"/></svg></button>
+        <button class="gal-btn next" data-ppstep="1" aria-label="Next photo"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>` : ``}
+      ${has ? `<button class="pp-zoom" data-ppzoom>Zoom</button>` : ``}
+    </div>
+    ${has > 1 ? `<div class="pp-thumbs" id="ppThumbs">${p.photos.map((src, n) =>
+      `<button data-ppthumb="${n}" aria-current="${n === 0}" aria-label="Photo ${n + 1}"><img src="${src}" alt="" loading="lazy"></button>`).join("")}</div>` : ``}`;
+}
+
+function buildProduct(p){
+  const d = p.detail || {};
+  const blocks = [
+    ppBlock("Product features", ppList(d.features, true)),
+    ppBlock("What's included",  ppPairs(d.includes, true)),
+    ppBlock("Product details",  ppPairs(d.specs, false)),
+    ppBlock("Care instructions", ppList(d.care, false))
+  ].filter(Boolean);
+
+  return `
+  <div class="pp-inner">
+    <div class="pp-top">
+      <div class="pp-gal">${ppStageHTML(p)}</div>
+
+      <div class="pp-buy">
+        ${p.flag ? `<span class="pp-flag">${esc(p.flag)}</span>` : ``}
+        <h1 class="pp-title">${esc(p.name)}</h1>
+        ${d.tagline ? `<p class="pp-tagline">${esc(d.tagline)}</p>` : ``}
+        <div class="pp-price">${priceLabel(p)}
+          <small>${p.price <= 0
+            ? "Delivery charged at checkout"
+            : p.price >= CONFIG.freeOver ? "Free delivery"
+            : `+ ${rs(CONFIG.shippingFlat)} delivery · free above ${rs(CONFIG.freeOver)}`}</small>
+        </div>
+        <p class="pp-intro">${esc(d.intro || p.desc)}</p>
+
+        <div class="pp-buyrow">
+          <button class="add-btn" data-add="${p.id}">Add to bag</button>
+        </div>
+
+        <div class="pp-assure">
+          <div><b>Cash on delivery</b> — pay when the parcel reaches you.</div>
+          <div><b>Dispatch</b> — within 1–2 working days from ${esc(CONFIG.city)}, tracking shared on WhatsApp.</div>
+          <div><b>Questions?</b> <a href="https://wa.me/${CONFIG.whatsapp}" target="_blank" rel="noopener" style="color:var(--accent)">WhatsApp ${prettyPhone}</a></div>
+        </div>
+      </div>
+    </div>
+
+    ${blocks.length ? `<div class="pp-detail${blocks.length === 1 ? " single" : ""}">${blocks.join("")}</div>` : ``}
+  </div>`;
+}
+
+function paintPPStage(){
+  const p = find(ppId);
+  if (!p || !(p.photos || []).length) return;
+  ppIdx = (ppIdx + p.photos.length) % p.photos.length;
+  const img = byId("ppImg");
+  if (img) img.src = p.photos[ppIdx];
+  document.querySelectorAll("[data-ppthumb]").forEach(t =>
+    t.setAttribute("aria-current", String(+t.dataset.ppthumb === ppIdx)));
+}
+
+function openProduct(id, push = true){
+  const p = find(id);
+  if (!p) return;
+  ppId = id; ppIdx = 0;
+  byId("ppBody").innerHTML = buildProduct(p);
+  byId("ppBody").scrollTop = 0;
+  byId("pp").classList.add("open");
+  document.body.classList.add("locked");
+  document.title = `${p.name} · ${CONFIG.brand}`;
+  if (push) history.pushState({ pp:id }, "", "#" + id);
+}
+
+function closeProduct(pop = true){
+  if (!ppId) return;
+  ppId = null;
+  byId("pp").classList.remove("open");
+  if (!byId("drawer").classList.contains("open") && !byId("lb").classList.contains("open"))
+    document.body.classList.remove("locked");
+  document.title = CONFIG.brand;
+  if (pop && location.hash.slice(1) && find(location.hash.slice(1))) history.back();
+}
+
+byId("ppBack").onclick = () => closeProduct();
+byId("ppCart").onclick = () => byId("openCart").click();
+
+document.addEventListener("click", e => {
+  const open = e.target.closest("[data-open]");
+  if (open && !e.target.closest(".gal-btn, [data-dot], [data-add], select")){
+    openProduct(open.dataset.open);
+    return;
+  }
+  const st = e.target.closest("[data-ppstep]");
+  if (st){ ppIdx += +st.dataset.ppstep; paintPPStage(); return; }
+  const th = e.target.closest("[data-ppthumb]");
+  if (th){ ppIdx = +th.dataset.ppthumb; paintPPStage(); return; }
+  const zm = e.target.closest("[data-ppzoom]");
+  if (zm && ppId){ openLightbox(ppId, ppIdx); return; }
+});
+
+/* keyboard: Enter or Space on a card opens it too */
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter" && e.key !== " ") return;
+  const open = e.target.closest && e.target.closest("[data-open]");
+  if (open){ e.preventDefault(); openProduct(open.dataset.open); }
+});
+/* the phone back button closes the product page */
+addEventListener("popstate", () => {
+  const id = location.hash.slice(1);
+  if (id && find(id)) openProduct(id, false);
+  else closeProduct(false);
+});
+/* Esc */
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && ppId && !byId("lb").classList.contains("open")) closeProduct();
+});
+
+/* ---------- gallery + full-screen viewer ---------- */
+let lbPhotos = [], lbIndex = 0;
+
+function showCardPhoto(art, idx){
+  const p = find(art.dataset.gal);
+  if (!p || !p.photos.length) return;
+  const n = (idx + p.photos.length) % p.photos.length;
+  art.dataset.idx = n;
+  const img = art.querySelector("img");
+  if (img) img.src = p.photos[n];
+  art.querySelectorAll("[data-dot]").forEach(d =>
+    d.setAttribute("aria-current", String(+d.dataset.dot === n)));
+}
+function openLightbox(id, idx){
+  const p = find(id);
+  if (!p || !p.photos.length) return;
+  lbPhotos = p.photos; lbIndex = idx;
+  byId("lbCap").textContent = p.name;
+  byId("lbPrev").hidden = byId("lbNext").hidden = lbPhotos.length < 2;
+  paintLightbox();
+  byId("lb").classList.add("open");
+  document.body.classList.add("locked");
+}
+function paintLightbox(){
+  byId("lbImg").src = lbPhotos[lbIndex];
+  byId("lbCount").textContent = lbPhotos.length > 1 ? `${lbIndex + 1} / ${lbPhotos.length}` : "";
+}
+function stepLightbox(d){
+  lbIndex = (lbIndex + d + lbPhotos.length) % lbPhotos.length;
+  paintLightbox();
+  if (ppId){ ppIdx = lbIndex; paintPPStage(); }   // keep the big photo in sync with the viewer
+}
+function closeLightbox(){
+  byId("lb").classList.remove("open");
+  if (!byId("drawer").classList.contains("open") && !ppId) document.body.classList.remove("locked");
+}
+
+document.addEventListener("click", (e) => {
+  const arrow = e.target.closest(".gal-btn[data-step]");
+  if (arrow){
+    const art = arrow.closest(".card-art");
+    if (!art) return;                       // product page ke apne arrows yahan na aayen
+    showCardPhoto(art, +art.dataset.idx + (+arrow.dataset.step));
+    return;
+  }
+  const dot = e.target.closest("[data-dot]");
+  if (dot){
+    const art = dot.closest(".card-art");
+    if (art) showCardPhoto(art, +dot.dataset.dot);
+    return;
+  }
+});
+byId("lbClose").onclick = closeLightbox;
+byId("lbPrev").onclick  = () => stepLightbox(-1);
+byId("lbNext").onclick  = () => stepLightbox(1);
+byId("lb").addEventListener("click", e => { if (e.target.id === "lb") closeLightbox(); });
+document.addEventListener("keydown", e => {
+  if (!byId("lb").classList.contains("open")) return;
+  if (e.key === "Escape") closeLightbox();
+  if (e.key === "ArrowLeft") stepLightbox(-1);
+  if (e.key === "ArrowRight") stepLightbox(1);
+});
+/* swipe on phones */
+let swipeX = null;
+byId("lb").addEventListener("touchstart", e => { swipeX = e.touches[0].clientX; }, {passive:true});
+byId("lb").addEventListener("touchend", e => {
+  if (swipeX === null || lbPhotos.length < 2) return;
+  const dx = e.changedTouches[0].clientX - swipeX;
+  if (Math.abs(dx) > 45) stepLightbox(dx < 0 ? 1 : -1);
+  swipeX = null;
+}, {passive:true});
+
+/* ============================================================
+   SMOOTH ANCHOR SCROLL
+   Measure the sticky header, store it in a CSS var, then glide every
+   #hash link to the right spot so the heading never hides behind it.
+   ============================================================ */
+const GAP = 20;                                  // breathing room above the heading
+
+function headHeight(){
+  const h = document.querySelector(".site-head");
+  return h ? h.getBoundingClientRect().height : 58;
+}
+function syncHeadVar(){
+  document.documentElement.style.setProperty("--head-h", headHeight() + "px");
+}
+syncHeadVar();
+addEventListener("resize", syncHeadVar);
+addEventListener("orientationchange", () => setTimeout(syncHeadVar, 120));
+
+const nativeSmooth = "scrollBehavior" in document.documentElement.style;
+const noMotion = () => matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* hand-rolled easing for browsers without native smooth scroll */
+function animateTo(top){
+  const start = window.pageYOffset, dist = top - start;
+  if (Math.abs(dist) < 2) return;
+  const dur = Math.min(900, Math.max(320, Math.abs(dist) * 0.55));
+  const t0 = performance.now();
+  (function step(now){
+    const p = Math.min(1, (now - t0) / dur);
+    const e = p < .5 ? 4*p*p*p : 1 - Math.pow(-2*p + 2, 3)/2;   // easeInOutCubic
+    window.scrollTo(0, start + dist * e);
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+function scrollToTarget(el){
+  syncHeadVar();
+  const top = Math.max(0, el.getBoundingClientRect().top + window.pageYOffset - headHeight() - GAP);
+  if (noMotion())        window.scrollTo(0, top);
+  else if (nativeSmooth) window.scrollTo({ top, behavior:"smooth" });
+  else                   animateTo(top);
+}
+
+document.addEventListener("click", e => {
+  const link = e.target.closest('a[href^="#"]');
+  if (!link) return;
+  const id = link.getAttribute("href").slice(1);
+  if (!id) return;
+  const el = document.getElementById(id);
+  if (!el) return;
+  e.preventDefault();                            // browser ka jhatka-jump roko
+  scrollToTarget(el);
+  history.replaceState(null, "", "#" + id);      // URL update, bina jump
+  el.setAttribute("tabindex", "-1");             // keyboard/screen-reader focus wahin
+  el.focus({ preventScroll:true });
+}, false);
+
+/* opened by a direct link: a product link opens the page, otherwise scroll to the section */
+addEventListener("load", () => {
+  const id = location.hash.slice(1);
+  if (!id) return;
+  if (typeof find === "function" && find(id)){ openProduct(id, false); return; }
+  const el = document.getElementById(id);
+  if (el) setTimeout(() => scrollToTarget(el), 60);
+});
+
 paintThemeIcon();
+buildFilters();
 renderGrid();
 syncChrome();
+loadPhotos();
+loadHero();
 </script>
 <!-- ARTIFACT-END -->
 

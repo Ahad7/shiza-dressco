@@ -311,6 +311,20 @@ a{color:inherit}
 .add-btn[disabled]{background:var(--surface-2);color:var(--ink-3);cursor:not-allowed;border:1px solid var(--line)}
 .add-btn[disabled]:hover{background:var(--surface-2)}
 
+/* small size circles on the card, so sizes show without opening the product */
+.card-sizes{display:flex;gap:5px;margin-top:7px}
+.card-sizes span{
+  width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;
+  justify-content:center;border:1px solid var(--line-strong);
+  font-size:9.5px;letter-spacing:.06em;color:var(--ink-2);
+}
+.card-sizes span.gone{
+  color:var(--ink-3);border-style:dashed;
+  background-image:linear-gradient(to top right,transparent calc(50% - .5px),
+                   var(--ink-3) calc(50% - .5px),var(--ink-3) calc(50% + .5px),
+                   transparent calc(50% + .5px));
+}
+
 /* size chips — a crossed-out chip is a size that has run out */
 .sizes{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
 .size-chip{
@@ -550,6 +564,14 @@ footer{border-top:1px solid var(--line);margin-top:54px;padding-block:36px 44px}
   border:1px solid var(--accent-soft);transform:rotate(45deg);
 }
 .pp-block li b{color:var(--ink);font-weight:500}
+.chart-wrap{margin-bottom:16px}
+.chart-cap{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.chart{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:lining-nums tabular-nums}
+.chart th,.chart td{text-align:left;padding:7px 10px 7px 0;border-bottom:1px solid var(--line)}
+.chart thead td{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.chart tbody th{font-weight:400;color:var(--ink-2);font-size:12.5px}
+.chart tbody td{color:var(--ink);font-weight:300}
+.chart-note{font-size:12px;color:var(--ink-3);font-weight:300;line-height:1.55;margin:0}
 .pp-block dl{display:grid;grid-template-columns:auto 1fr;gap:11px 18px;margin:0}
 .pp-block dt{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);padding-top:2px}
 .pp-block dd{margin:0;font-size:13.5px;color:var(--ink-2);font-weight:300;line-height:1.55}
@@ -874,7 +896,7 @@ const CONFIG = {
    ============================================================ */
 const PRODUCTS = [
   { id:"pistachio-vine", name:"Pistachio Vine", cat:"unstitched", price:2200, shape:"stack",
-    soldOut:false,
+    soldOut:true,
     photos:["pistachio-vine.jpeg", "pistachio-vine-2.jpeg"],
     tone:["#DCE4C6", "#2C3A5E"], flag:"3Pc · Unstitched",
     desc:"Pistachio lawn with a navy leaf print and a flowing printed dupatta.",
@@ -1136,7 +1158,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"scarlet-batik", name:"Scarlet Batik", cat:"unstitched", price:2200, shape:"stack",
-    soldOut:false,
+    soldOut:true,
     photos:["scarlet-batik.jpeg"],
     tone:["#F7D8D0", "#D62B23"], flag:"3Pc · Unstitched",
     desc:"Scarlet lawn with a white batik print and an ornate bordered dupatta.",
@@ -1300,11 +1322,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"mocha-meadow", name:"Mocha Meadow", cat:"stitched", price:0, shape:"kurta",
+  { id:"mocha-meadow", name:"Mocha Meadow", cat:"stitched", price:2500, shape:"kurta",
     photos:["mocha-meadow.jpeg", "mocha-meadow-2.jpeg", "mocha-meadow-3.jpeg"],
     tone:["#E4D7CB", "#8A6B55"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Mocha lawn shirt with a soft meadow print and a matching trouser.",
     detail:{
@@ -1331,12 +1353,12 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"wine-blossom", name:"Wine Blossom", cat:"stitched", price:0, shape:"kurta",
+  { id:"wine-blossom", name:"Wine Blossom", cat:"stitched", price:2500, shape:"kurta",
     photos:["wine-blossom.jpeg", "wine-blossom-2.jpeg"],
     tone:["#F0E4DA", "#6E2434"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
-    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    sizes:["S","M","L"],        // which sizes exist
+    soldOutSizes:["S"],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Ivory shirt with autumn blooms, worn with a wine palazzo.",
     detail:{
       tagline:"2 Piece Stitched Printed Lawn Suit",
@@ -1362,11 +1384,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"saffron-lace", name:"Saffron Lace", cat:"stitched", price:0, shape:"kurta",
+  { id:"saffron-lace", name:"Saffron Lace", cat:"stitched", price:2500, shape:"kurta",
     photos:["saffron-lace.jpeg", "saffron-lace-2.jpeg", "saffron-lace-3.jpeg"],
     tone:["#EFE2CF", "#C98A2E"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Sand lawn shirt with saffron leaves and crocheted lace.",
     detail:{
@@ -1393,11 +1415,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"rust-petal", name:"Rust Petal", cat:"stitched", price:0, shape:"kurta",
+  { id:"rust-petal", name:"Rust Petal", cat:"stitched", price:2500, shape:"kurta",
     photos:["rust-petal.jpeg", "rust-petal-2.jpeg"],
     tone:["#EDDCCB", "#B5562C"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Beige lawn shirt with rust poppies and a rust trouser.",
     detail:{
@@ -1424,11 +1446,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"rose-dusk", name:"Rose Dusk", cat:"stitched", price:0, shape:"kurta",
+  { id:"rose-dusk", name:"Rose Dusk", cat:"stitched", price:2500, shape:"kurta",
     photos:["rose-dusk.jpeg", "rose-dusk-2.jpeg"],
     tone:["#F2DCD9", "#A8646A"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Dusty rose shirt with a tonal floral print and matching trouser.",
     detail:{
@@ -1455,11 +1477,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"slate-bloom", name:"Slate Bloom", cat:"stitched", price:0, shape:"kurta",
+  { id:"slate-bloom", name:"Slate Bloom", cat:"stitched", price:2500, shape:"kurta",
     photos:["slate-bloom.jpeg", "slate-bloom-2.jpeg"],
     tone:["#D8DCE2", "#2E4356"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Slate-blue shirt scattered with coral blooms, with a navy trouser.",
     detail:{
@@ -1486,11 +1508,11 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"emerald-frond", name:"Emerald Frond", cat:"stitched", price:0, shape:"kurta",
+  { id:"emerald-frond", name:"Emerald Frond", cat:"stitched", price:2500, shape:"kurta",
     photos:["emerald-frond.jpeg", "emerald-frond-2.jpeg"],
     tone:["#E9EFE8", "#1F6B5E"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Ivory shirt with emerald fronds and an embroidered trim.",
     detail:{
@@ -1517,13 +1539,13 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"ochre-rose", name:"Ochre Rose", cat:"stitched", price:0, shape:"kurta",
+  { id:"ochre-rose", name:"Ochre Rose", cat:"stitched", price:2500, shape:"kurta",
     /* ochre-rose-3 is the only low-resolution shot in the catalogue (382x512),
        so it sits last. Delete it from this line to drop it altogether. */
     photos:["ochre-rose.jpeg", "ochre-rose-2.jpeg", "ochre-rose-3.jpeg"],
     tone:["#EBD3A4", "#A8386E"], flag:"2Pc · Stitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
-    sizes:["S","M","L","XL"],   // which sizes exist
+    sizes:["S","M","L"],        // which sizes exist
     soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
     desc:"Ochre shirt covered in magenta roses, with tassels and a matching trouser.",
     detail:{
@@ -1550,7 +1572,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"noir-garden", name:"Noir Garden", cat:"unstitched", price:0, shape:"kurta",
+  { id:"noir-garden", name:"Noir Garden", cat:"unstitched", price:2400, shape:"kurta",
     photos:["noir-garden.jpeg", "noir-garden-2.jpeg"],
     tone:["#DCE4D2", "#1B1B1D"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1570,6 +1592,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain black trouser fabric."]
       ],
       specs:[
+        ["Brand", "Malaika"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Black, cream, green"],
         ["Suit type", "3 piece — unstitched"]
@@ -1582,7 +1605,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"rose-stamp", name:"Rose Stamp", cat:"unstitched", price:0, shape:"kurta",
+  { id:"rose-stamp", name:"Rose Stamp", cat:"unstitched", price:2200, shape:"kurta",
     photos:["rose-stamp.jpeg", "rose-stamp-2.jpeg"],
     tone:["#F6D6DA", "#C8415A"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1602,6 +1625,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain pink trouser fabric."]
       ],
       specs:[
+        ["Brand", "Nishat Linen"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Pink, coral, maroon"],
         ["Suit type", "3 piece — unstitched"]
@@ -1614,7 +1638,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"carmine-bloom", name:"Carmine Bloom", cat:"unstitched", price:0, shape:"kurta",
+  { id:"carmine-bloom", name:"Carmine Bloom", cat:"unstitched", price:2400, shape:"kurta",
     photos:["carmine-bloom.jpeg", "carmine-bloom-2.jpeg", "carmine-bloom-3.jpeg"],
     tone:["#F2D6D2", "#B32033"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1634,6 +1658,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain red trouser fabric."]
       ],
       specs:[
+        ["Brand", "Malaika"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Carmine red, black"],
         ["Suit type", "3 piece — unstitched"]
@@ -1646,7 +1671,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"magenta-vine", name:"Magenta Vine", cat:"unstitched", price:0, shape:"kurta",
+  { id:"magenta-vine", name:"Magenta Vine", cat:"unstitched", price:2400, shape:"kurta",
     photos:["magenta-vine.jpeg", "magenta-vine-2.jpeg"],
     tone:["#F6D2E4", "#B81F6B"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1666,6 +1691,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain black trouser fabric."]
       ],
       specs:[
+        ["Brand", "Malaika"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Magenta, black"],
         ["Suit type", "3 piece — unstitched"]
@@ -1678,7 +1704,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"jade-marigold", name:"Jade Marigold", cat:"unstitched", price:0, shape:"kurta",
+  { id:"jade-marigold", name:"Jade Marigold", cat:"unstitched", price:2400, shape:"kurta",
     photos:["jade-marigold.jpeg", "jade-marigold-2.jpeg"],
     tone:["#CFE3DA", "#1E7A6E"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1698,6 +1724,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain jade trouser fabric."]
       ],
       specs:[
+        ["Brand", "Malaika"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Jade green, marigold, coral"],
         ["Suit type", "3 piece — unstitched"]
@@ -1710,7 +1737,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"ebony-ember", name:"Ebony Ember", cat:"unstitched", price:0, shape:"kurta",
+  { id:"ebony-ember", name:"Ebony Ember", cat:"unstitched", price:2400, shape:"kurta",
     photos:["ebony-ember.jpeg", "ebony-ember-2.jpeg"],
     tone:["#D9CFC6", "#2A1F20"], flag:"3Pc · Unstitched",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1730,6 +1757,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain black trouser fabric."]
       ],
       specs:[
+        ["Brand", "Malaika"],
         ["Fabric", "Printed lawn"],
         ["Colour", "Black, ember red, maroon"],
         ["Suit type", "3 piece — unstitched"]
@@ -1742,7 +1770,7 @@ const PRODUCTS = [
         "Iron on medium heat, inside out over printed areas."
       ]
     } },
-  { id:"apple-blossom", name:"Apple Blossom", cat:"winter", price:0, shape:"kurta",
+  { id:"apple-blossom", name:"Apple Blossom", cat:"winter", price:3500, shape:"kurta",
     photos:["apple-blossom.jpeg", "apple-blossom-2.jpeg", "apple-blossom-3.jpeg"],
     tone:["#DDE8C2", "#7FA23C"], flag:"3Pc · Dhanak",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1762,6 +1790,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain green dhanak trouser fabric."]
       ],
       specs:[
+        ["Brand", "ELAAF"],
         ["Fabric", "Dhanak — brushed winter fabric"],
         ["Colour", "Apple green, peach, orange"],
         ["Suit type", "3 piece — unstitched"],
@@ -1774,7 +1803,7 @@ const PRODUCTS = [
         "Dry flat in shade and iron on low heat."
       ]
     } },
-  { id:"olive-ivory", name:"Olive Ivory", cat:"winter", price:0, shape:"kurta",
+  { id:"olive-ivory", name:"Olive Ivory", cat:"winter", price:3500, shape:"kurta",
     photos:["olive-ivory.jpeg", "olive-ivory-2.jpeg", "olive-ivory-3.jpeg"],
     tone:["#EDE7D6", "#6B7A33"], flag:"3Pc · Dhanak",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1794,6 +1823,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain olive dhanak trouser fabric."]
       ],
       specs:[
+        ["Brand", "ELAAF"],
         ["Fabric", "Dhanak — brushed winter fabric"],
         ["Colour", "Ivory, olive green"],
         ["Suit type", "3 piece — unstitched"],
@@ -1806,7 +1836,7 @@ const PRODUCTS = [
         "Dry flat in shade and iron on low heat."
       ]
     } },
-  { id:"lilac-rose", name:"Lilac Rose", cat:"winter", price:0, shape:"kurta",
+  { id:"lilac-rose", name:"Lilac Rose", cat:"winter", price:3500, shape:"kurta",
     photos:["lilac-rose.jpeg", "lilac-rose-2.jpeg"],
     tone:["#F3D9E0", "#9C7FA8"], flag:"3Pc · Dhanak",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1826,6 +1856,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain pink dhanak trouser fabric."]
       ],
       specs:[
+        ["Brand", "ELAAF"],
         ["Fabric", "Dhanak — brushed winter fabric"],
         ["Colour", "Rose pink, lilac, grey"],
         ["Suit type", "3 piece — unstitched"],
@@ -1838,7 +1869,7 @@ const PRODUCTS = [
         "Dry flat in shade and iron on low heat."
       ]
     } },
-  { id:"crimson-blush", name:"Crimson Blush", cat:"winter", price:0, shape:"kurta",
+  { id:"crimson-blush", name:"Crimson Blush", cat:"winter", price:3500, shape:"kurta",
     photos:["crimson-blush.jpeg", "crimson-blush-2.jpeg"],
     tone:["#F1DED6", "#B02232"], flag:"3Pc · Dhanak",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1858,6 +1889,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain crimson dhanak trouser fabric."]
       ],
       specs:[
+        ["Brand", "ELAAF"],
         ["Fabric", "Dhanak — brushed winter fabric"],
         ["Colour", "Blush, crimson"],
         ["Suit type", "3 piece — unstitched"],
@@ -1870,7 +1902,7 @@ const PRODUCTS = [
         "Dry flat in shade and iron on low heat."
       ]
     } },
-  { id:"ruby-petal", name:"Ruby Petal", cat:"winter", price:0, shape:"kurta",
+  { id:"ruby-petal", name:"Ruby Petal", cat:"winter", price:3500, shape:"kurta",
     photos:["ruby-petal.jpeg", "ruby-petal-2.jpeg"],
     tone:["#F2DBD8", "#A82030"], flag:"3Pc · Dhanak",
     soldOut:false,              // true -> "Out of stock" on the card and the page
@@ -1890,6 +1922,7 @@ const PRODUCTS = [
         ["Trouser", "Dyed plain ruby dhanak trouser fabric."]
       ],
       specs:[
+        ["Brand", "ELAAF"],
         ["Fabric", "Dhanak — brushed winter fabric"],
         ["Colour", "Blush, ruby red"],
         ["Suit type", "3 piece — unstitched"],
@@ -2013,6 +2046,13 @@ function renderGrid(){
         <div class="card-name" data-open="${p.id}" role="button" tabindex="0" style="cursor:pointer">${p.name}</div>
         <p class="card-desc">${p.desc}</p>
         <div class="card-price">${priceLabel(p)}</div>
+        ${(p.sizes && p.sizes.length) ? `
+          <div class="card-sizes" aria-label="Sizes available">
+            ${p.sizes.map(sz => {
+              const gone = p.soldOut || (p.soldOutSizes || []).includes(sz);
+              return `<span class="${gone ? "gone" : ""}" title="${sz}${gone ? " — out of stock" : ""}">${sz}</span>`;
+            }).join("")}
+          </div>` : ``}
       </div>
       <div class="card-foot">
         ${p.soldOut
@@ -2028,6 +2068,34 @@ const subtotal = () => cart.reduce((s, it) => s + find(it.id).price * it.qty, 0)
 const shipping = () => { const s = subtotal(); return (s === 0 || s >= CONFIG.freeOver) ? 0 : CONFIG.shippingFlat; };
 const total = () => subtotal() + shipping();
 const itemCount = () => cart.reduce((n, it) => n + it.qty, 0);
+
+/* ============================================================
+   SIZE CHART — stitched suits
+   Inches, measured flat across the garment. Change a number here and
+   it updates on every stitched product page at once.
+   ============================================================ */
+const SIZE_CHART = {
+  shirt:   [["Shoulder", {S:"14",   M:"15.5", L:"16"}],
+            ["Chest",    {S:"20",   M:"22",   L:"24"}],
+            ["Hip",      {S:"20.5", M:"22.5", L:"24.5"}]],
+  trouser: [["Length",   {S:"39",   M:"39",   L:"39"}],
+            ["Waist",    {S:"14",   M:"15",   L:"16"}]]
+};
+function sizeChartHTML(sizes){
+  const row = ([label, vals]) =>
+    `<tr><th>${label}</th>${sizes.map(sz => `<td>${vals[sz] || "—"}</td>`).join("")}</tr>`;
+  const table = (title, rows) => `
+    <div class="chart-wrap">
+      <div class="chart-cap">${title}</div>
+      <table class="chart">
+        <thead><tr><th></th>${sizes.map(sz => `<td>${sz}</td>`).join("")}</tr></thead>
+        <tbody>${rows.map(row).join("")}</tbody>
+      </table>
+    </div>`;
+  return table("Shirt", SIZE_CHART.shirt) + table("Trouser", SIZE_CHART.trouser) +
+         `<p class="chart-note">Measurements in inches, taken flat across the garment.
+          Between sizes? Take the larger one.</p>`;
+}
 
 /* the first size still in stock — used to preselect a chip */
 function firstInStock(p){
@@ -2313,7 +2381,7 @@ window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", pai
   byId("announceBar").textContent =
     `Free delivery on orders above ${rs(CONFIG.freeOver)} · Cash on delivery nationwide`;
   if (CONFIG.heroTag) byId("heroTag").textContent = CONFIG.heroTag;
-  const n = PRODUCTS.length;                       // the count updates itself
+  const n = PRODUCTS.filter(x => !x.soldOut).length;   // sold-out pieces are not "in stock"
   byId("shopHeading").textContent = `${n} piece${n === 1 ? "" : "s"}, in stock now`;
   const local = "0" + CONFIG.whatsapp.slice(2);
   byId("footPhone").innerHTML =
@@ -2488,7 +2556,8 @@ function buildProduct(p){
     ppBlock("Product features", ppList(d.features, true)),
     ppBlock("What's included",  ppPairs(d.includes, true)),
     ppBlock("Product details",  ppPairs(d.specs, false)),
-    ppBlock("Care instructions", ppList(d.care, false))
+    ppBlock("Care instructions", ppList(d.care, false)),
+    (p.sizes && p.sizes.length) ? ppBlock("Size guide", sizeChartHTML(p.sizes)) : ""
   ].filter(Boolean);
 
   return `

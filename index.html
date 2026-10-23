@@ -298,6 +298,37 @@ a{color:inherit}
 .card-name{font-family:"Cormorant Garamond",Georgia,serif;font-size:22px;line-height:1.2}
 .card-desc{font-size:12.5px;color:var(--ink-2);font-weight:300;line-height:1.5;margin-top:2px}
 .card-price{font-size:14px;font-variant-numeric:tabular-nums;margin-top:5px}
+/* ---------- sold out + sizes ---------- */
+.card.out .card-art img,.card.out .card-art svg{filter:grayscale(.55);opacity:.55}
+.sold-tag{
+  position:absolute;top:0;left:0;right:0;bottom:0;z-index:4;display:flex;
+  align-items:center;justify-content:center;pointer-events:none;
+}
+.sold-tag span{
+  background:rgba(26,19,18,.86);color:#fff;font-size:10px;letter-spacing:.22em;
+  text-transform:uppercase;padding:9px 16px;border-radius:2px;
+}
+.add-btn[disabled]{background:var(--surface-2);color:var(--ink-3);cursor:not-allowed;border:1px solid var(--line)}
+.add-btn[disabled]:hover{background:var(--surface-2)}
+
+/* size chips — a crossed-out chip is a size that has run out */
+.sizes{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.size-chip{
+  min-width:46px;padding:11px 12px;border:1px solid var(--line-strong);border-radius:2px;
+  background:var(--surface);color:var(--ink);font-size:11.5px;letter-spacing:.12em;
+  text-transform:uppercase;transition:border-color .2s,background .2s,color .2s;
+}
+.size-chip:hover:not([disabled]){border-color:var(--accent)}
+.size-chip[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.size-chip[disabled]{
+  cursor:not-allowed;color:var(--ink-3);border-style:dashed;background:transparent;
+  /* the diagonal line that marks a size as gone */
+  background-image:linear-gradient(to top right,transparent calc(50% - .6px),
+                   var(--ink-3) calc(50% - .6px),var(--ink-3) calc(50% + .6px),
+                   transparent calc(50% + .6px));
+}
+.size-note{font-size:11px;color:var(--ink-3);letter-spacing:.06em;margin-top:-2px}
+
 .card-foot{margin-top:auto;padding-top:10px}
 .card-foot .add-btn{width:100%;padding:13px 16px}
 .add-btn{
@@ -833,9 +864,17 @@ const CONFIG = {
    desc      the one line under the name in the grid.
    detail    everything on the product page. Leave a field empty
              and that section simply will not appear.
+
+   ---- the two things you will change most often ----
+   soldOut        false -> on sale.  true -> the card dims, shows
+                  "Out of stock", and the button stops working.
+   soldOutSizes   stitched suits only. ["S","XL"] puts a line through
+                  those size chips so nobody can pick them.
+                  [] means every size is available.
    ============================================================ */
 const PRODUCTS = [
   { id:"pistachio-vine", name:"Pistachio Vine", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["pistachio-vine.jpeg", "pistachio-vine-2.jpeg"],
     tone:["#DCE4C6", "#2C3A5E"], flag:"3Pc · Unstitched",
     desc:"Pistachio lawn with a navy leaf print and a flowing printed dupatta.",
@@ -867,6 +906,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"blush-bloom", name:"Blush Bloom", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["blush-bloom.jpeg", "blush-bloom-2.jpeg"],
     tone:["#F2D8DA", "#8E7CA6"], flag:"3Pc · Unstitched",
     desc:"Blush pink lawn scattered with mauve and plum blooms.",
@@ -898,6 +938,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"amber-fern", name:"Amber Fern", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["amber-fern.jpeg", "amber-fern-2.jpeg"],
     tone:["#E8C66A", "#1E5E5A"], flag:"3Pc · Unstitched",
     desc:"Mustard lawn under a canopy of green leaves, with a deep teal dupatta.",
@@ -931,6 +972,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"pine-ember", name:"Pine Ember", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["pine-ember.jpeg", "pine-ember-2.jpeg"],
     tone:["#CFD8CC", "#214038"], flag:"3Pc · Unstitched",
     desc:"Bottle-green lawn with rust and cream leaves, and a striped chiffon dupatta.",
@@ -962,6 +1004,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"coral-ginkgo", name:"Coral Ginkgo", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["coral-ginkgo.jpeg", "coral-ginkgo-2.jpeg"],
     tone:["#F5CDC2", "#C2605A"], flag:"3Pc · Unstitched",
     desc:"Coral lawn with grey-violet florals and a ginkgo-print dupatta.",
@@ -993,6 +1036,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"autumn-ivory", name:"Autumn Ivory", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["autumn-ivory.jpeg", "autumn-ivory-2.jpeg"],
     tone:["#F4E8D6", "#C2642E"], flag:"3Pc · Unstitched",
     desc:"Ivory lawn with rust maple leaves and a sunset-toned dupatta.",
@@ -1024,6 +1068,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"fuchsia-pebble", name:"Fuchsia Pebble", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["fuchsia-pebble.jpeg", "fuchsia-pebble-2.jpeg"],
     tone:["#F9D5E3", "#D81E7A"], flag:"3Pc · Unstitched",
     desc:"Bright fuchsia lawn with a white pebble print and a bordered dupatta.",
@@ -1057,6 +1102,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"mint-hibiscus", name:"Mint Hibiscus", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["mint-hibiscus.jpeg"],
     tone:["#D4EAE6", "#2E5E8E"], flag:"3Pc · Unstitched",
     desc:"Mint lawn with blue and cream hibiscus, and a striped chiffon dupatta.",
@@ -1090,6 +1136,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"scarlet-batik", name:"Scarlet Batik", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["scarlet-batik.jpeg"],
     tone:["#F7D8D0", "#D62B23"], flag:"3Pc · Unstitched",
     desc:"Scarlet lawn with a white batik print and an ornate bordered dupatta.",
@@ -1123,6 +1170,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"honey-blossom", name:"Honey Blossom", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["honey-blossom.jpeg"],
     tone:["#EFDCAC", "#B4832E"], flag:"3Pc · Unstitched",
     desc:"Honey-gold lawn with cream blossoms and a striped butterfly dupatta.",
@@ -1155,6 +1203,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"rose-paisley", name:"Rose Paisley", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["rose-paisley.jpeg"],
     tone:["#F6DCD8", "#D8838A"], flag:"3Pc · Unstitched",
     desc:"Soft rose lawn with a cream paisley block print.",
@@ -1187,6 +1236,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"indigo-block", name:"Indigo Block", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["indigo-block.jpeg"],
     tone:["#D4E0E8", "#3A6E96"], flag:"3Pc · Unstitched",
     desc:"Denim-blue lawn with ochre block-print flowers and a striped dupatta.",
@@ -1219,6 +1269,7 @@ const PRODUCTS = [
       ]
     } },
   { id:"teal-swirl", name:"Teal Swirl", cat:"unstitched", price:2200, shape:"stack",
+    soldOut:false,
     photos:["teal-swirl.jpeg", "teal-swirl-2.jpeg"],
     tone:["#C4E0DA", "#15485C"], flag:"3Pc · Unstitched",
     desc:"Sea-green lawn with a navy swirl print and an ombré dupatta.",
@@ -1247,6 +1298,608 @@ const PRODUCTS = [
         "Do not bleach or use harsh stain removers.",
         "Dry in shade to protect the print.",
         "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"mocha-meadow", name:"Mocha Meadow", cat:"stitched", price:0, shape:"kurta",
+    photos:["mocha-meadow.jpeg", "mocha-meadow-2.jpeg", "mocha-meadow-3.jpeg"],
+    tone:["#E4D7CB", "#8A6B55"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Mocha lawn shirt with a soft meadow print and a matching trouser.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"A warm mocha ground carries a faded meadow of roses and leaves, cut as a straight shirt with a notched neckline and fine lace at the hem. The trouser is dyed to match exactly, so the whole suit reads as one tone.",
+      features:[
+        "Ready to wear: stitched and finished, straight out of the parcel.",
+        "Soft print: muted roses and foliage over a warm mocha ground.",
+        "Finished edges: lace trim along the hem and the sleeve cuffs."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt, stitched, with lace trim."],
+        ["Trouser", "Dyed plain mocha trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Mocha, dusty rose, sage"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"wine-blossom", name:"Wine Blossom", cat:"stitched", price:0, shape:"kurta",
+    photos:["wine-blossom.jpeg", "wine-blossom-2.jpeg"],
+    tone:["#F0E4DA", "#6E2434"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Ivory shirt with autumn blooms, worn with a wine palazzo.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Large painted blooms in rust, wine and gold spread across an ivory ground, finished with a tassel at the neckline and lace at the cuffs. The wide wine palazzo underneath lifts the whole look to something you can wear out.",
+      features:[
+        "Ready to wear: stitched shirt and palazzo, nothing left to tailor.",
+        "Painted florals: rust, wine and gold blooms over ivory.",
+        "Finished detail: latkan at the neckline and lace on the sleeves."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with latkan and lace."],
+        ["Palazzo", "Dyed wine palazzo, wide leg, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Ivory, wine, rust"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"saffron-lace", name:"Saffron Lace", cat:"stitched", price:0, shape:"kurta",
+    photos:["saffron-lace.jpeg", "saffron-lace-2.jpeg", "saffron-lace-3.jpeg"],
+    tone:["#EFE2CF", "#C98A2E"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Sand lawn shirt with saffron leaves and crocheted lace.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Saffron and amber leaves drift over a sand ground, with crocheted lace running along the hem, the cuffs and the neckline. The mustard trouser picks up the brightest tone in the print.",
+      features:[
+        "Ready to wear: stitched shirt and trouser, finished throughout.",
+        "Leaf print: amber and saffron foliage on a soft sand ground.",
+        "Crochet lace: along the hem, cuffs and neckline."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with crochet lace trim."],
+        ["Trouser", "Dyed plain mustard trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Sand, saffron, mustard"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"rust-petal", name:"Rust Petal", cat:"stitched", price:0, shape:"kurta",
+    photos:["rust-petal.jpeg", "rust-petal-2.jpeg"],
+    tone:["#EDDCCB", "#B5562C"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Beige lawn shirt with rust poppies and a rust trouser.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Open rust poppies sit across a soft beige ground, drawn large enough to read from across a room. The trouser is dyed in the same rust, so the print has something solid to sit against.",
+      features:[
+        "Ready to wear: stitched shirt and trouser.",
+        "Bold florals: large rust poppies on a beige ground.",
+        "Tonal pairing: trouser dyed to the print's own rust."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt, stitched."],
+        ["Trouser", "Dyed plain rust trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Beige, rust, terracotta"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"rose-dusk", name:"Rose Dusk", cat:"stitched", price:0, shape:"kurta",
+    photos:["rose-dusk.jpeg", "rose-dusk-2.jpeg"],
+    tone:["#F2DCD9", "#A8646A"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Dusty rose shirt with a tonal floral print and matching trouser.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"A quiet, single-colour suit: dusty rose on dusty rose, the floral drawn a shade deeper than the ground. Easy to wear, easy to accessorise, and it does not shout.",
+      features:[
+        "Ready to wear: stitched shirt and trouser.",
+        "Tonal print: rose florals a shade deeper than the ground.",
+        "Fine trim: lace detail at the neckline and cuffs."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with lace detail."],
+        ["Trouser", "Dyed plain rose trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Dusty rose"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"slate-bloom", name:"Slate Bloom", cat:"stitched", price:0, shape:"kurta",
+    photos:["slate-bloom.jpeg", "slate-bloom-2.jpeg"],
+    tone:["#D8DCE2", "#2E4356"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Slate-blue shirt scattered with coral blooms, with a navy trouser.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Coral and peach blooms open across a slate-blue ground, with navy lace along the hem. The deep navy trouser anchors the cooler palette and keeps the print the loudest thing in the outfit.",
+      features:[
+        "Ready to wear: stitched shirt and trouser.",
+        "Cool palette: coral and peach flowers over slate blue.",
+        "Navy lace: trim along the hem and sleeves."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with navy lace trim."],
+        ["Trouser", "Dyed plain navy trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Slate blue, coral, navy"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"emerald-frond", name:"Emerald Frond", cat:"stitched", price:0, shape:"kurta",
+    photos:["emerald-frond.jpeg", "emerald-frond-2.jpeg"],
+    tone:["#E9EFE8", "#1F6B5E"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Ivory shirt with emerald fronds and an embroidered trim.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Emerald and violet fronds climb an ivory ground, finished with a worked emerald border at the sleeve and neckline. The lightest suit of the set, and the easiest in heat.",
+      features:[
+        "Ready to wear: stitched shirt and trouser.",
+        "Tropical print: emerald and violet fronds over ivory.",
+        "Worked trim: embroidered emerald border at neckline and sleeve."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with embroidered trim."],
+        ["Trouser", "Dyed plain cream trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Ivory, emerald, violet"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"ochre-rose", name:"Ochre Rose", cat:"stitched", price:0, shape:"kurta",
+    /* ochre-rose-3 is the only low-resolution shot in the catalogue (382x512),
+       so it sits last. Delete it from this line to drop it altogether. */
+    photos:["ochre-rose.jpeg", "ochre-rose-2.jpeg", "ochre-rose-3.jpeg"],
+    tone:["#EBD3A4", "#A8386E"], flag:"2Pc · Stitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    sizes:["S","M","L","XL"],   // which sizes exist
+    soldOutSizes:[],            // e.g. ["S","XL"] -> those chips show a cross
+    desc:"Ochre shirt covered in magenta roses, with tassels and a matching trouser.",
+    detail:{
+      tagline:"2 Piece Stitched Printed Lawn Suit",
+      intro:"Magenta and plum roses crowd a warm ochre ground, with a long tassel falling from the placket. The brightest piece in the stitched range, and the one that needs no jewellery.",
+      features:[
+        "Ready to wear: stitched shirt and trouser.",
+        "Dense floral: magenta and plum roses over warm ochre.",
+        "Tassel placket: long tassels at the neckline opening."
+      ],
+      includes:[
+        ["Shirt", "Printed lawn shirt with tassel placket."],
+        ["Trouser", "Dyed plain ochre trouser, stitched."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Ochre, magenta, plum"],
+        ["Suit type", "2 piece — stitched"]
+      ],
+      care:[
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"noir-garden", name:"Noir Garden", cat:"unstitched", price:0, shape:"kurta",
+    photos:["noir-garden.jpeg", "noir-garden-2.jpeg"],
+    tone:["#DCE4D2", "#1B1B1D"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Black floral shirt with a cream and green geometric dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Pink and green roses scatter across a black ground, set against a cream dupatta carrying a bold green and black geometric border. A strong contrast pairing that still reads as everyday.",
+      features:[
+        "Contrast dupatta: cream with a green and black geometric border.",
+        "Floral shirt: pink and green roses over a deep black ground.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed cream dupatta with geometric borders."],
+        ["Trouser", "Dyed plain black trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Black, cream, green"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"rose-stamp", name:"Rose Stamp", cat:"unstitched", price:0, shape:"kurta",
+    photos:["rose-stamp.jpeg", "rose-stamp-2.jpeg"],
+    tone:["#F6D6DA", "#C8415A"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Pink block-print shirt with a coral bordered dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Small stamped motifs repeat across a soft pink ground, with a coral dupatta carrying a flowering tree along its fall. Traditional block-print feel in a light, warm-weather palette.",
+      features:[
+        "Block-print feel: small repeated motifs on a soft pink ground.",
+        "Bordered dupatta: coral ground with a flowering tree at the fall.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed coral dupatta with a bordered fall."],
+        ["Trouser", "Dyed plain pink trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Pink, coral, maroon"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"carmine-bloom", name:"Carmine Bloom", cat:"unstitched", price:0, shape:"kurta",
+    photos:["carmine-bloom.jpeg", "carmine-bloom-2.jpeg", "carmine-bloom-3.jpeg"],
+    tone:["#F2D6D2", "#B32033"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Carmine and black floral shirt with a matching printed dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Deep carmine flowers run over a black ground, with a bordered dupatta in the same palette and a plain red trouser to finish. A formal-leaning print that still works through the day.",
+      features:[
+        "Rich florals: carmine blooms over a black ground.",
+        "Matched dupatta: same palette with a decorative border.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with a decorative border."],
+        ["Trouser", "Dyed plain red trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Carmine red, black"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"magenta-vine", name:"Magenta Vine", cat:"unstitched", price:0, shape:"kurta",
+    photos:["magenta-vine.jpeg", "magenta-vine-2.jpeg"],
+    tone:["#F6D2E4", "#B81F6B"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Magenta floral shirt and dupatta with a black trouser.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Magenta roses climb a dark ground across both the shirt and the dupatta, cut through with a bright pink border. The black trouser keeps a loud print grounded.",
+      features:[
+        "Bright floral: magenta roses over a dark ground.",
+        "Matching dupatta: same vine with a bright bordered edge.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with a bright border."],
+        ["Trouser", "Dyed plain black trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Magenta, black"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"jade-marigold", name:"Jade Marigold", cat:"unstitched", price:0, shape:"kurta",
+    photos:["jade-marigold.jpeg", "jade-marigold-2.jpeg"],
+    tone:["#CFE3DA", "#1E7A6E"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Jade shirt with marigold flowers and a diamond-print dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Marigold and coral flowers open across a jade ground, paired with a dupatta carrying a teal and gold diamond lattice. Warm flowers on a cool base — the pairing does the work.",
+      features:[
+        "Warm on cool: marigold and coral flowers over jade green.",
+        "Lattice dupatta: teal and gold diamond pattern.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed dupatta with a diamond lattice."],
+        ["Trouser", "Dyed plain jade trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Jade green, marigold, coral"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"ebony-ember", name:"Ebony Ember", cat:"unstitched", price:0, shape:"kurta",
+    photos:["ebony-ember.jpeg", "ebony-ember-2.jpeg"],
+    tone:["#D9CFC6", "#2A1F20"], flag:"3Pc · Unstitched",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Ebony floral shirt with a maroon striped dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Printed Suit",
+      intro:"Ember-red and grey flowers press into a near-black ground, with a maroon dupatta carrying fine gold stripes. Deep, warm colours that suit the cooler months.",
+      features:[
+        "Dark florals: ember red and grey blooms on near-black.",
+        "Striped dupatta: maroon with fine gold stripes.",
+        "Versatile styling: unstitched, so the cut is yours to choose.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed fabric — front, back and sleeves."],
+        ["Dupatta", "Printed maroon striped dupatta."],
+        ["Trouser", "Dyed plain black trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Printed lawn"],
+        ["Colour", "Black, ember red, maroon"],
+        ["Suit type", "3 piece — unstitched"]
+      ],
+      care:[
+        "Shrink the fabric in lukewarm water before stitching.",
+        "Wash separately in cold water for the first few washes.",
+        "Do not bleach or use harsh stain removers.",
+        "Dry in shade to protect the print.",
+        "Iron on medium heat, inside out over printed areas."
+      ]
+    } },
+  { id:"apple-blossom", name:"Apple Blossom", cat:"winter", price:0, shape:"kurta",
+    photos:["apple-blossom.jpeg", "apple-blossom-2.jpeg", "apple-blossom-3.jpeg"],
+    tone:["#DDE8C2", "#7FA23C"], flag:"3Pc · Dhanak",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Apple-green dhanak with peach roses and an orange-edged dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Dhanak Suit",
+      intro:"Peach and apricot roses spread across an apple-green ground, with an orange-bordered dupatta and a worked neckline panel. Dhanak is a brushed, warm fabric — this is a winter suit, not a lawn one.",
+      features:[
+        "Winter fabric: brushed dhanak, soft and warm against the skin.",
+        "Floral print: peach and apricot roses over apple green.",
+        "Worked neckline: embroidered panel on the shirt front.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed dhanak — front, back and sleeves, with an embroidered neckline."],
+        ["Dupatta", "Printed dhanak dupatta with an orange border."],
+        ["Trouser", "Dyed plain green dhanak trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Dhanak — brushed winter fabric"],
+        ["Colour", "Apple green, peach, orange"],
+        ["Suit type", "3 piece — unstitched"],
+        ["Season", "Winter"]
+      ],
+      care:[
+        "Dry clean recommended for the first wash.",
+        "If washing at home, use cold water and a mild detergent.",
+        "Do not bleach or wring the fabric.",
+        "Dry flat in shade and iron on low heat."
+      ]
+    } },
+  { id:"olive-ivory", name:"Olive Ivory", cat:"winter", price:0, shape:"kurta",
+    photos:["olive-ivory.jpeg", "olive-ivory-2.jpeg", "olive-ivory-3.jpeg"],
+    tone:["#EDE7D6", "#6B7A33"], flag:"3Pc · Dhanak",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Ivory dhanak with olive embroidery and a matching olive dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Dhanak Suit",
+      intro:"An ivory ground scattered with fine olive sprigs, with a worked olive panel down the shirt front and a dupatta in deeper olive. Quiet and warm — the one to reach for on a cold morning.",
+      features:[
+        "Winter fabric: brushed dhanak, soft and warm against the skin.",
+        "Embroidered front: worked olive panel down the shirt.",
+        "Tonal dupatta: deeper olive with a printed border.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed dhanak with an embroidered front panel."],
+        ["Dupatta", "Printed olive dhanak dupatta."],
+        ["Trouser", "Dyed plain olive dhanak trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Dhanak — brushed winter fabric"],
+        ["Colour", "Ivory, olive green"],
+        ["Suit type", "3 piece — unstitched"],
+        ["Season", "Winter"]
+      ],
+      care:[
+        "Dry clean recommended for the first wash.",
+        "If washing at home, use cold water and a mild detergent.",
+        "Do not bleach or wring the fabric.",
+        "Dry flat in shade and iron on low heat."
+      ]
+    } },
+  { id:"lilac-rose", name:"Lilac Rose", cat:"winter", price:0, shape:"kurta",
+    photos:["lilac-rose.jpeg", "lilac-rose-2.jpeg"],
+    tone:["#F3D9E0", "#9C7FA8"], flag:"3Pc · Dhanak",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Rose-pink dhanak with large blooms and a lilac dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Dhanak Suit",
+      intro:"Large pink roses cover a rose ground, with a lilac-grey dupatta carrying the same blooms along a wide border. Soft colours in a heavy winter fabric — warmer than it looks.",
+      features:[
+        "Winter fabric: brushed dhanak, soft and warm against the skin.",
+        "Large florals: full pink roses across the shirt.",
+        "Lilac dupatta: grey-lilac ground with a wide floral border.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed dhanak — front, back and sleeves."],
+        ["Dupatta", "Printed lilac dhanak dupatta."],
+        ["Trouser", "Dyed plain pink dhanak trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Dhanak — brushed winter fabric"],
+        ["Colour", "Rose pink, lilac, grey"],
+        ["Suit type", "3 piece — unstitched"],
+        ["Season", "Winter"]
+      ],
+      care:[
+        "Dry clean recommended for the first wash.",
+        "If washing at home, use cold water and a mild detergent.",
+        "Do not bleach or wring the fabric.",
+        "Dry flat in shade and iron on low heat."
+      ]
+    } },
+  { id:"crimson-blush", name:"Crimson Blush", cat:"winter", price:0, shape:"kurta",
+    photos:["crimson-blush.jpeg", "crimson-blush-2.jpeg"],
+    tone:["#F1DED6", "#B02232"], flag:"3Pc · Dhanak",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Blush dhanak with crimson embroidery and a crimson dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Dhanak Suit",
+      intro:"A blush ground worked in crimson thread down the front panel, paired with a crimson dupatta dotted in white and a plain crimson trouser. The dressiest of the winter set.",
+      features:[
+        "Winter fabric: brushed dhanak, soft and warm against the skin.",
+        "Embroidered front: crimson thread work down the shirt panel.",
+        "Dotted dupatta: crimson ground with fine white dots.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Dhanak shirt with an embroidered front panel."],
+        ["Dupatta", "Printed crimson dhanak dupatta."],
+        ["Trouser", "Dyed plain crimson dhanak trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Dhanak — brushed winter fabric"],
+        ["Colour", "Blush, crimson"],
+        ["Suit type", "3 piece — unstitched"],
+        ["Season", "Winter"]
+      ],
+      care:[
+        "Dry clean recommended for the first wash.",
+        "If washing at home, use cold water and a mild detergent.",
+        "Do not bleach or wring the fabric.",
+        "Dry flat in shade and iron on low heat."
+      ]
+    } },
+  { id:"ruby-petal", name:"Ruby Petal", cat:"winter", price:0, shape:"kurta",
+    photos:["ruby-petal.jpeg", "ruby-petal-2.jpeg"],
+    tone:["#F2DBD8", "#A82030"], flag:"3Pc · Dhanak",
+    soldOut:false,              // true -> "Out of stock" on the card and the page
+    desc:"Blush dhanak with ruby florals and a matching floral dupatta.",
+    detail:{
+      tagline:"3 Piece Unstitched Dhanak Suit",
+      intro:"Ruby flowers climb a blush ground on both the shirt and the dupatta, with a worked neckline and a plain ruby trouser underneath. Warm, rich and easy to wear through the season.",
+      features:[
+        "Winter fabric: brushed dhanak, soft and warm against the skin.",
+        "Matched set: the same ruby floral on shirt and dupatta.",
+        "Worked neckline: embroidered detail at the shirt front.",
+        "Unstitched: choose your own neckline, sleeve length and fit when you have it stitched."
+      ],
+      includes:[
+        ["Shirt", "Printed dhanak with an embroidered neckline."],
+        ["Dupatta", "Printed floral dhanak dupatta."],
+        ["Trouser", "Dyed plain ruby dhanak trouser fabric."]
+      ],
+      specs:[
+        ["Fabric", "Dhanak — brushed winter fabric"],
+        ["Colour", "Blush, ruby red"],
+        ["Suit type", "3 piece — unstitched"],
+        ["Season", "Winter"]
+      ],
+      care:[
+        "Dry clean recommended for the first wash.",
+        "If washing at home, use cold water and a mild detergent.",
+        "Do not bleach or wring the fabric.",
+        "Dry flat in shade and iron on low heat."
       ]
     } }
 ];
@@ -1330,7 +1983,8 @@ let cart = [], step = "bag", lastOrder = null, activeCat = "all";
 const priceLabel = p => p.price > 0 ? rs(p.price) : "Price on request";
 
 /* the filter buttons build themselves — the bar hides when there is only one category */
-const CAT_LABELS = { lawn:"Printed lawn", formal:"Formal", winter:"Winter", dupatta:"Dupatta" };
+const CAT_LABELS = { unstitched:"Unstitched", stitched:"Stitched",
+                     winter:"Winter", lawn:"Printed lawn", dupatta:"Dupatta" };
 function buildFilters(){
   const cats = [...new Set(PRODUCTS.map(p => p.cat))];
   const bar = byId("filters");
@@ -1344,7 +1998,7 @@ function buildFilters(){
 function renderGrid(){
   const list = PRODUCTS.filter(p => activeCat === "all" || p.cat === activeCat);
   byId("grid").innerHTML = list.map((p, i) => `
-    <article class="card">
+    <article class="card${p.soldOut ? " out" : ""}">
       <div class="card-art${(p.photos||[]).length ? ' has-photo' : ''}" data-gal="${p.id}" data-idx="0" data-open="${p.id}" role="button" tabindex="0" aria-label="Open ${p.name}">
         ${artwork(p, i)}
         ${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="${p.name}" loading="${i < 2 ? "eager" : "lazy"}" decoding="async" fetchpriority="${i < 2 ? "high" : "low"}">` : ``}
@@ -1353,6 +2007,7 @@ function renderGrid(){
           <button class="gal-btn next" data-step="1" aria-label="Next photo of ${p.name}"><svg viewBox="0 0 24 24"><path d="M9 5 L16 12 L9 19"/></svg></button>
           <span class="gal-dots">${p.photos.map((_, n) => `<button data-dot="${n}" aria-current="${n === 0}" aria-label="Photo ${n+1}"></button>`).join("")}</span>` : ``}
         <span class="card-flag">${p.flag}</span>
+        ${p.soldOut ? `<span class="sold-tag"><span>Out of stock</span></span>` : ``}
       </div>
       <div>
         <div class="card-name" data-open="${p.id}" role="button" tabindex="0" style="cursor:pointer">${p.name}</div>
@@ -1360,7 +2015,11 @@ function renderGrid(){
         <div class="card-price">${priceLabel(p)}</div>
       </div>
       <div class="card-foot">
-        <button class="add-btn" data-add="${p.id}">Add to bag</button>
+        ${p.soldOut
+          ? `<button class="add-btn" disabled>Out of stock</button>`
+          : (p.sizes && p.sizes.length)
+            ? `<button class="add-btn" data-open="${p.id}">Select size</button>`
+            : `<button class="add-btn" data-add="${p.id}">Add to bag</button>`}
       </div>
     </article>`).join("");
 }
@@ -1370,9 +2029,24 @@ const shipping = () => { const s = subtotal(); return (s === 0 || s >= CONFIG.fr
 const total = () => subtotal() + shipping();
 const itemCount = () => cart.reduce((n, it) => n + it.qty, 0);
 
+/* the first size still in stock — used to preselect a chip */
+function firstInStock(p){
+  const gone = p.soldOutSizes || [];
+  const i = (p.sizes || []).findIndex(sz => !gone.includes(sz));
+  return i < 0 ? 0 : i;
+}
+/* which chip is currently pressed on the open product page */
+function chosenSize(){
+  const el = document.querySelector('.sizes .size-chip[aria-pressed="true"]');
+  return el ? el.dataset.size : null;
+}
 function addToCart(id){
-  const hit = cart.find(it => it.id === id);
-  if (hit) hit.qty++; else cart.push({ id, qty:1 });
+  const p = find(id);
+  if (!p || p.soldOut) return;
+  const size = (p.sizes && p.sizes.length) ? chosenSize() : null;
+  if (p.sizes && p.sizes.length && !size) return;        // nothing selectable
+  const hit = cart.find(it => it.id === id && it.size === size);
+  if (hit) hit.qty++; else cart.push({ id, size, qty:1 });
   step = "bag"; syncChrome(); renderDrawer();
 }
 function changeQty(idx, delta){
@@ -1471,6 +2145,7 @@ function renderDrawer(){
           <div class="li-art">${artwork(p, "c" + i)}${(p.photos||[]).length ? `<img src="${p.photos[0]}" alt="">` : ``}</div>
           <div class="li-main">
             <div class="li-name">${p.name}</div>
+            ${it.size ? `<div class="li-meta">Size ${it.size}</div>` : ``}
             <div class="li-row">
               <div class="qty">
                 <button data-q="${i}" data-d="-1" aria-label="Reduce quantity">−</button>
@@ -1572,7 +2247,7 @@ function placeOrder(){
   const ship = shipping();
   const lines = cart.map(it => {
     const p = find(it.id);
-    return `${it.qty} × ${p.name} — ${rs(p.price * it.qty)}`;
+    return `${it.qty} × ${p.name}${it.size ? ` (size ${it.size})` : ""} — ${rs(p.price * it.qty)}`;
   }).join("\n");
 
   const text =
@@ -1598,6 +2273,12 @@ City: ${city}${note ? "\nNote: " + note : ""}`;
 
 /* ---------- wiring ---------- */
 document.addEventListener("click", (e) => {
+  const chip = e.target.closest(".size-chip");
+  if (chip && !chip.disabled){
+    chip.parentElement.querySelectorAll(".size-chip")
+        .forEach(c => c.setAttribute("aria-pressed", String(c === chip)));
+    return;
+  }
   const add = e.target.closest("[data-add]");
   if (add){
     addToCart(add.dataset.add);
@@ -1827,8 +2508,24 @@ function buildProduct(p){
         </div>
         <p class="pp-intro">${esc(d.intro || p.desc)}</p>
 
+        ${(p.sizes && p.sizes.length) ? `
+          <div>
+            <div class="sizes" role="group" aria-label="Choose a size">
+              ${p.sizes.map((sz, n) => {
+                const gone = (p.soldOutSizes || []).includes(sz) || p.soldOut;
+                return `<button class="size-chip" data-size="${sz}"
+                          aria-pressed="${!gone && n === firstInStock(p)}"
+                          ${gone ? `disabled aria-label="${sz} — out of stock"` : ``}>${sz}</button>`;
+              }).join("")}
+            </div>
+            ${(p.soldOutSizes || []).length && !p.soldOut
+              ? `<p class="size-note">Crossed sizes are out of stock.</p>` : ``}
+          </div>` : ``}
+
         <div class="pp-buyrow">
-          <button class="add-btn" data-add="${p.id}">Add to bag</button>
+          ${p.soldOut
+            ? `<button class="add-btn" disabled>Out of stock</button>`
+            : `<button class="add-btn" data-add="${p.id}">Add to bag</button>`}
         </div>
 
         <div class="pp-assure">
@@ -1986,6 +2683,15 @@ byId("lb").addEventListener("touchend", e => {
    Measure the sticky header, store it in a CSS var, then glide every
    #hash link to the right spot so the heading never hides behind it.
    ============================================================ */
+/* Browsers restore the previous scroll position on a refresh, and they do it
+   after the load event — which used to drop a returning visitor halfway down
+   the page. Turn that off for a fresh load, but leave it on for back/forward
+   so those still return you where you were. */
+if (history.scrollRestoration &&
+    (performance.getEntriesByType("navigation")[0] || {}).type !== "back_forward"){
+  history.scrollRestoration = "manual";
+}
+
 const GAP = 20;                                  // breathing room above the heading
 
 function headHeight(){
